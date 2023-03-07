@@ -1,16 +1,23 @@
 #include <ADS1X15.h>
 #include <WiFi.h>
+#include <NTPClient.h>
+#include <Timezone.h>
+#include <Time.h>
+#include <WiFiUdp.h>
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
 #include <ESPDash.h>
-#include "secrets.h"
 
-#define UPDATE_INTERVAL 2000
+#include "secrets.h" // provides WIFI_NAME and WIFI Password, you need to create this
+
+#define UPDATE_INTERVAL 2000 // how often to collect data
 #define READING_PAUSE 500 // time to pause after setting a pin high (seems good to wait for it to stabalize ... maybe not)
-#define NUM_PROBES 4
+#define NUM_PROBES 4 // number of probes
 
 // Setup some default objects
 ADS1115 ADS(0x48);
+WiFiUDP ntpUDP;
+NTPClient timeClient(ntpUDP);
 AsyncWebServer server(80);
 ESPDash dashboard(&server); 
 Card temperature(&dashboard, TEMPERATURE_CARD, "Temperature", "°F");
@@ -43,7 +50,10 @@ struct pinDetails pinConfig = {
 };
 
 
-
+// Setup timezone stuff (assuming US Eastern, change if ya want)
+TimeChangeRule myDST = {"EDT", Second, Sun, Mar, 2, -240};    // Daylight time = UTC - 4 hours
+TimeChangeRule mySTD = {"EST", First, Sun, Nov, 2, -300};     // Standard time = UTC - 5 hours
+Timezone myTZ(myDST, mySTD);
 
 // Sets the voltage and thermistor power pins to input 
 // so everything is starting from a known point
@@ -183,6 +193,7 @@ void setup()
   Serial.print("IP Address: ");
   Serial.println(WiFi.localIP());
 
+  timeClient.begin();
   server.begin();
   ADS.begin();
 
@@ -200,6 +211,23 @@ void setup()
 
 void loop() 
 {
+  time_t local_time_t, utc;
+
+  utc = now();
+  local_time_t = myTZ.toLocal(timeClient.getEpochTime());
+  Serial.println(
+                String(hour(local_time_t)) + ":" + 
+                String(minute(local_time_t)) + ":" + 
+                String(second(local_time_t)) + " " +
+                String(year(local_time_t)) + "." +
+                String(month(local_time_t)) + "." +
+                String(day(local_time_t))
+              );
+Serial.println();
+
+
+
+  timeClient.update();
   dashboard.sendUpdates();
   vTaskDelay(UPDATE_INTERVAL / portTICK_PERIOD_MS);
 }
