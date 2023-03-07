@@ -23,7 +23,7 @@ static const double BETA = 3500.0;
 static const double ROOM_TEMP = 298.15;
 static const double RESISTOR_ROOM_TEMP = 200000.0;
 
-static const int VOLTAGE_PIN = GPIO_NUM_25;      // The pin that shares A0 used for measuring raw output voltage
+static const int VOLTAGE_PIN = GPIO_NUM_4;      // The pin that shares A0 used for measuring raw output voltage
 
 
 // Setup our thermistor pins and the corresponding ads channels
@@ -121,18 +121,18 @@ double kToF(double temp_k){
 // log the data
 void printData(int channel_num, double divider_voltage, double temp_k, double resistance) {
   double temp_c = kToC(temp_k);
-  double temp_f = cToF(temp_c);
+  double temp_f = kToF(temp_k);
 
-  Serial.println("Channel: " + String(channel_num)); 
-    Serial.println("\tchanel 0 v: " +String(divider_voltage, 4));
+  Serial.print("Channel: " + String(channel_num)); 
+    Serial.print("\t" + String(divider_voltage, 2) + "V");
+    Serial.print("\t" + String(resistance,2) + "R");
+    
 
     // Only print this if we suspect a thermistor is attached
     if(resistance > 10000) {
-      Serial.println("\tchannel 0 Ohm: " +String(resistance));
-      Serial.println("\tchannel 0 temp k/c/f: " + String(temp_k) + " " + String(temp_c) + " " + String(temp_f));
+      Serial.print("\t" + String(temp_k) + "k " + String(temp_c) + "c " + String(temp_f) + "f");
     }
     Serial.println();
-
 }
 
 
@@ -160,10 +160,6 @@ void getDataTask(void* params){
     vTaskDelay(UPDATE_INTERVAL / portTICK_PERIOD_MS);
   }
 }
-
-
-
-
 
 
 void setup() 
