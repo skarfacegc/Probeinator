@@ -10,7 +10,7 @@
 
 #include "secrets.h" // provides WIFI_NAME and WIFI Password, you need to create this
 
-#define UPDATE_INTERVAL 2000 // how often to collect data
+#define UPDATE_INTERVAL 5000 // how often to collect data
 #define READING_PAUSE 500 // time to pause after setting a pin high (seems good to wait for it to stabalize ... maybe not)
 #define NUM_PROBES 4 // number of probes
 
@@ -20,7 +20,11 @@ WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP);
 AsyncWebServer server(80);
 ESPDash dashboard(&server); 
-Card temperature(&dashboard, TEMPERATURE_CARD, "Temperature", "°F");
+Card temperature0(&dashboard, TEMPERATURE_CARD, "Probe 1", "°F");
+Card temperature1(&dashboard, TEMPERATURE_CARD, "Probe 2", "°F");
+Card temperature2(&dashboard, TEMPERATURE_CARD, "Probe 3", "°F");
+Card temperature3(&dashboard, TEMPERATURE_CARD, "Probe 4", "°F");
+
 
 // get some constants out of the way
 static const char* ssid = WIFI_NAME; // SSID
@@ -163,9 +167,26 @@ void getDataTask(void* params){
       double resistance = getResistance(BALANCE_RESISTOR, Vref, thermistorVoltage);
       double temp_k = getTempK(BETA, ROOM_TEMP, RESISTOR_ROOM_TEMP,resistance);
       printData(pin_config->adsChannels[i], thermistorVoltage, temp_k, resistance);
-      temperature.update((int)kToF(temp_k));  
+      
+      switch (i) {
+        case 0:
+          temperature0.update((int)kToF(temp_k));
+          break;
+        case 1:
+          temperature1.update((int)kToF(temp_k));
+          break;
+        case 2:
+          temperature2.update((int)kToF(temp_k));
+          break;
+        case 3:
+          temperature3.update((int)kToF(temp_k));
+          break;
+        default:
+          Serial.println("Sholdn't have gotten here: getData switch");
+      }
+      
     }
-
+    
     Serial.println("---");
     vTaskDelay(UPDATE_INTERVAL / portTICK_PERIOD_MS);
   }
@@ -212,8 +233,7 @@ void setup()
 void loop() 
 {
   time_t local_time_t, utc;
-
-  utc = now();
+  timeClient.update();
   local_time_t = myTZ.toLocal(timeClient.getEpochTime());
   Serial.println(
                 String(hour(local_time_t)) + ":" + 
@@ -223,11 +243,8 @@ void loop()
                 String(month(local_time_t)) + "." +
                 String(day(local_time_t))
               );
-Serial.println();
+  Serial.println();
 
-
-
-  timeClient.update();
   dashboard.sendUpdates();
   vTaskDelay(UPDATE_INTERVAL / portTICK_PERIOD_MS);
 }
