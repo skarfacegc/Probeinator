@@ -19,3 +19,7 @@ Rough BOM
 I'm currently driving the thermistors by setting a GPIO high.  The voltage isn't particularly stable, so I'm about to tear a bunch of this down and try using some 3.3v voltage regulators, will feed the thermistors and the esp32 from that.  Should get a more stable reference voltage for the voltage divider.
 
 I'm using 22k resistors as the fixed side of the divider, read that somewhere in a forum discussing this thermistor. Idea was to get the curve as steep as possible around the range you care most about, in this case ~200 iirc. Didn't save the link :(
+
+I'm in the process of trying to simplify everything a bit. I've been piecing this together so everything is a mix of intentional and experiments.  Updates will be going into the [cleanup branch](https://github.com/skarfacegc/Probeinator/tree/cleanup).
+
+I am using this project as an excuse to get a PCB made. Will be posting/sharing the fritzing files eventually.

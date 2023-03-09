@@ -11,7 +11,7 @@
 #include "secrets.h" // provides WIFI_NAME and WIFI Password, you need to create this
 
 #define UPDATE_INTERVAL 5000 // how often to collect data
-#define READING_PAUSE 500 // time to pause after setting a pin high (seems good to wait for it to stabalize ... maybe not)
+#define READING_PAUSE 500 // time to pause after setting a pin high (seems good to wait for it to stabilize ... maybe not)
 #define NUM_PROBES 4 // number of probes
 
 // Setup some default objects
@@ -110,7 +110,7 @@ double getThermistorVoltage(int voltage_pin, int thermistor_pin, int ads_pin) {
 }
 
 // This is the beta formula to turn resistance into temperature
-// BETA is from the datasheet here: https://drive.google.com/file/d/1ukcaFtORlLmLLrnIlCA0BvS1rEwbFoyd4ReqIFV8y3iL1sojljPAW8x8bYZW/view
+// BETA is from the data sheet here: https://drive.google.com/file/d/1ukcaFtORlLmLLrnIlCA0BvS1rEwbFoyd4ReqIFV8y3iL1sojljPAW8x8bYZW/view
 double getTempK(double BETA, double ROOM_TEMP, double RESISTOR_ROOM_TEMP, double resistance) {
   return (BETA * ROOM_TEMP) /
          (BETA + (ROOM_TEMP * log(resistance / RESISTOR_ROOM_TEMP)));
@@ -182,7 +182,7 @@ void getDataTask(void* params){
           temperature3.update((int)kToF(temp_k));
           break;
         default:
-          Serial.println("Sholdn't have gotten here: getData switch");
+          Serial.println("shouldn't have gotten here: getData switch");
       }
       
     }
