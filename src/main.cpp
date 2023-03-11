@@ -36,54 +36,13 @@ TimeChangeRule myDST = {"EDT", Second, Sun, Mar, 2, -240};    // Daylight time =
 TimeChangeRule mySTD = {"EST", First, Sun, Nov, 2, -300};     // Standard time = UTC - 5 hours
 Timezone myTZ(myDST, mySTD);
 
-// Sets the voltage and thermistor power pins to input 
-// so everything is starting from a known point
-// called once per loop
-void initPins(int thermistor_pins[NUM_PROBES], int voltage_pin){
-  // Set the thermistor pins to input (turn them off)
-  for (int i = 0; i < NUM_PROBES; i++) {
-    pinMode(thermistor_pins[i], INPUT);
-  }
-  pinMode(voltage_pin, INPUT);
-}
-
-
-// Gets the voltage from one of the analog out pins to use as Vref in the 
-// voltage divider math
-// Set the thermistor pin to input
-// Set the voltage pin to output
-// Set Pin high
-// Read the voltage
-// Reset pins
-double getBaseVoltage(int voltage_pin, int thermistor_pin, int ads_pin){
-  double voltage = 0.0;
-  pinMode(thermistor_pin, INPUT);
-  pinMode(voltage_pin, OUTPUT);
-  
-  digitalWrite(voltage_pin, HIGH);
-  vTaskDelay(READING_PAUSE / portTICK_PERIOD_MS);
-  voltage = ADS.toVoltage(ADS.readADC(ads_pin));
-  digitalWrite(voltage_pin, LOW);
-
-  return voltage;
-}
-
 // Reads the voltage from the thermistor voltage divider
 // Set voltage pin to input, thermistor pin to output
 // set thermistor pin high
 // read value
 // reset pins
-double getThermistorVoltage(int voltage_pin, int thermistor_pin, int ads_pin) {
-  double voltage = 0.0;
-  pinMode(thermistor_pin, OUTPUT);
-  pinMode(voltage_pin, INPUT);
-  
-  digitalWrite(thermistor_pin, HIGH);
-  vTaskDelay(READING_PAUSE / portTICK_PERIOD_MS);
-  voltage = ADS.toVoltage(ADS.readADC(ads_pin));
-  digitalWrite(thermistor_pin, LOW);
-  
-  return voltage;
+double getThermistorVoltage(int thermistor_pin, int ads_pin) {
+  return ADS.toVoltage(ADS.readADC(ads_pin));
 }
 
 // This is the beta formula to turn resistance into temperature
@@ -131,16 +90,10 @@ void getDataTask(void* params){
   pinDetails* pin_config = (pinDetails*) params;
   
   while(1) {
-    initPins(pin_config->thermistors, pin_config->voltagePin);
-    double Vref = getBaseVoltage(
-                                  pin_config->voltagePin, 
-                                  pin_config->thermistors[0], 
-                                  pin_config->adsChannels[0]
-                                );
-    Serial.println("Vref: " + String(Vref,4));
+    double Vref = INPUT_VOLTAGE;
     
     for (int i = 0; i < NUM_PROBES; i++) {
-      double thermistorVoltage = getThermistorVoltage(VOLTAGE_PIN, pin_config->thermistors[i], pin_config->adsChannels[i]);
+      double thermistorVoltage = getThermistorVoltage(pin_config->thermistors[i], pin_config->adsChannels[i]);
       double resistance = getResistance(BALANCE_RESISTOR, Vref, thermistorVoltage);
       double temp_k = getTempK(BETA, ROOM_TEMP, RESISTOR_ROOM_TEMP,resistance);
       printData(pin_config->adsChannels[i], thermistorVoltage, temp_k, resistance);
@@ -176,10 +129,6 @@ void setup()
   Serial.println(__FILE__);
   Serial.print("ADS1X15_LIB_VERSION: ");
   Serial.println(ADS1X15_LIB_VERSION);
-
-
-  // Set these both to input so we're starting from a known state
-  initPins(pinConfig.thermistors, pinConfig.voltagePin);
 
   // get on the wifi
   WiFi.mode(WIFI_STA);
