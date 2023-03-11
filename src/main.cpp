@@ -106,10 +106,10 @@ void getDataTask(void* params){
 
       if(resistance < 10000) {
         temp_f = 0;
-        temp_string = "--";
+        temp_string = "--  "; // spaces here are to ensure we overwrite the F when the prev val was 111F
       }
       else{
-        temp_string = String(temp_f) + String("f");
+        temp_string = String(temp_f) + String("F");
       }
 
       
