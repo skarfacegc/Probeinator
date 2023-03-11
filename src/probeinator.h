@@ -11,7 +11,7 @@
 static const char* ssid = WIFI_NAME; // SSID
 static const char* password = WIFI_PW; // Password
 
-static const double INPUT_VOLTAGE = 3.31;
+static const double INPUT_VOLTAGE = 3.30;
 static const double BALANCE_RESISTOR = 22000.0;
 static const double BETA = 3500.0;
 static const double ROOM_TEMP = 298.15;

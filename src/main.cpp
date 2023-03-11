@@ -11,9 +11,10 @@
 #include <AsyncTCP.h>
 #include <NTPClient.h>
 
-// Web
+// Web & UI
 #include <ESPAsyncWebServer.h>
 #include <ESPDash.h>
+#include <LiquidCrystal_I2C.h>
 
 
 // Defaults are in here
@@ -29,6 +30,8 @@ Card temperature0(&dashboard, TEMPERATURE_CARD, "Probe 1", "°F");
 Card temperature1(&dashboard, TEMPERATURE_CARD, "Probe 2", "°F");
 Card temperature2(&dashboard, TEMPERATURE_CARD, "Probe 3", "°F");
 Card temperature3(&dashboard, TEMPERATURE_CARD, "Probe 4", "°F");
+
+LiquidCrystal_I2C lcd(0x27,20,4);  
 
 
 // Setup timezone stuff (assuming US Eastern, change if ya want)
@@ -97,20 +100,41 @@ void getDataTask(void* params){
       double resistance = getResistance(BALANCE_RESISTOR, Vref, thermistorVoltage);
       double temp_k = getTempK(BETA, ROOM_TEMP, RESISTOR_ROOM_TEMP,resistance);
       printData(pin_config->adsChannels[i], thermistorVoltage, temp_k, resistance);
+
+      int temp_f = kToF(temp_k);
+      String temp_string;
+
+      if(resistance < 10000) {
+        temp_f = 0;
+        temp_string = "--";
+      }
+      else{
+        temp_string = String(temp_f) + String("f");
+      }
+
       
       switch (i) {
         case 0:
-          temperature0.update((int)kToF(temp_k));
+          temperature0.update(temp_f);
+          lcd.setCursor(0,i);  
+          lcd.print("Probe " + String(i+1) + ": " + temp_string); 
           break;
         case 1:
-          temperature1.update((int)kToF(temp_k));
+          temperature1.update(temp_f);
+          lcd.setCursor(0,i);  
+          lcd.print("Probe " + String(i+1) + ": " + temp_string); 
           break;
         case 2:
-          temperature2.update((int)kToF(temp_k));
+          temperature2.update(temp_f);
+          lcd.setCursor(0,i);  
+          lcd.print("Probe " + String(i+1) + ": " + temp_string); 
           break;
         case 3:
-          temperature3.update((int)kToF(temp_k));
+          temperature3.update(temp_f);
+          lcd.setCursor(0,i);  
+          lcd.print("Probe " + String(i+1) + ": " + temp_string); 
           break;
+
         default:
           Serial.println("shouldn't have gotten here: getData switch");
       }
@@ -140,6 +164,11 @@ void setup()
   Serial.print("IP Address: ");
   Serial.println(WiFi.localIP());
 
+  // init the lcd
+  lcd.init();
+  lcd.clear();         
+  lcd.backlight(); 
+  
   timeClient.begin();
   server.begin();
   ADS.begin();
