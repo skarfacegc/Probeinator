@@ -1,5 +1,5 @@
 #include <Arduino.h>
-#include "secrets.h"
+#include "secrets.h" // needs to provide WIFI_NAME / WIFI_PW you need to create this
 
 
 #define UPDATE_INTERVAL 5000 // how often to collect data

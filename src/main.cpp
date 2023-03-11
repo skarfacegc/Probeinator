@@ -9,7 +9,6 @@
 #include <ESPDash.h>
 
 #include "probeinator.h"
-#include "secrets.h" // provides WIFI_NAME and WIFI Password, you need to create this
 
 // Setup some default objects
 ADS1115 ADS(0x48);
