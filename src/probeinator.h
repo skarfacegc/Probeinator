@@ -11,12 +11,13 @@
 static const char* ssid = WIFI_NAME; // SSID
 static const char* password = WIFI_PW; // Password
 
+static const double INPUT_VOLTAGE = 3.31;
 static const double BALANCE_RESISTOR = 22000.0;
 static const double BETA = 3500.0;
 static const double ROOM_TEMP = 298.15;
 static const double RESISTOR_ROOM_TEMP = 200000.0;
 
-static const int VOLTAGE_PIN = GPIO_NUM_4;      // The pin that shares A0 used for measuring raw output voltage
+// static const int VOLTAGE_PIN = GPIO_NUM_4;      // The pin that shares A0 used for measuring raw output voltage
 
 
 // Setup our thermistor pins and the corresponding ads channels
@@ -24,7 +25,6 @@ static const int VOLTAGE_PIN = GPIO_NUM_4;      // The pin that shares A0 used f
 struct pinDetails {
   int thermistors[NUM_PROBES];
   int adsChannels[NUM_PROBES];
-  int voltagePin;
 };
 
 // NOTE: Code assumes that the first thermistor and the voltage pin are connected to the 
@@ -32,5 +32,4 @@ struct pinDetails {
 static struct pinDetails pinConfig = {
   {GPIO_NUM_19, GPIO_NUM_18, GPIO_NUM_17, GPIO_NUM_16}, // List of GPIO pins
   {0,1,2,3}, // ... and their corresponding ADS1115 channels
-  VOLTAGE_PIN // The pin to use to determine vRef
 };
