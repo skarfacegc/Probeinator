@@ -20,6 +20,4 @@ I'm currently driving the thermistors by setting a GPIO high.  The voltage isn't
 
 I'm using 22k resistors as the fixed side of the divider, read that somewhere in a forum discussing this thermistor. Idea was to get the curve as steep as possible around the range you care most about, in this case ~200 (maybe 250) Didn't save the link :(
 
-I'm in the process of trying to simplify everything a bit. I've been piecing this together so everything is a mix of intentional and experiments.  Updates will be going into the [cleanup branch](https://github.com/skarfacegc/Probeinator/tree/cleanup).
-
 I am using this project as an excuse to get a PCB made. Will be posting/sharing the Fritzing files eventually.
