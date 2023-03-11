@@ -15,8 +15,11 @@ Rough BOM
     - beta (default 3500)
     - ref temp (default 20°C)
     - resistance at ref temp (default 200000)
+- 1xLD1117 3.3v regulator
+- 1x100nf capacitor (for the LD1117 circuit)
+- 1x10uf capacitor (for the LD1117 circuit)
 
-I'm currently driving the thermistors by setting a GPIO high.  The voltage isn't particularly stable, so I'm about to tear a bunch of this down and try using some 3.3v voltage regulators, will feed the thermistors and the esp32 from that.  Should get a more stable reference voltage for the voltage divider.
+Feeding the thermistors power from the 3.3v regulator to get a stable voltage, the esp32 GPIO pins were causing random 3ish degree drifts in the temp readings.
 
 I'm using 22k resistors as the fixed side of the divider, read that somewhere in a forum discussing this thermistor. Idea was to get the curve as steep as possible around the range you care most about, in this case ~200 (maybe 250) Didn't save the link :(
 
