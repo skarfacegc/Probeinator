@@ -1,13 +1,22 @@
+// ADS1115 library
 #include <ADS1X15.h>
-#include <WiFi.h>
-#include <NTPClient.h>
+
+// TimeHandling
 #include <Timezone.h>
 #include <Time.h>
+
+// Network core
+#include <WiFi.h>
 #include <WiFiUdp.h>
 #include <AsyncTCP.h>
+#include <NTPClient.h>
+
+// Web
 #include <ESPAsyncWebServer.h>
 #include <ESPDash.h>
 
+
+// Defaults are in here
 #include "probeinator.h"
 
 // Setup some default objects

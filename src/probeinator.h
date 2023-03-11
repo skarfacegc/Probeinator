@@ -2,14 +2,15 @@
 #include "secrets.h" // needs to provide WIFI_NAME / WIFI_PW you need to create this
 
 
-#define UPDATE_INTERVAL 5000 // how often to collect data
-#define READING_PAUSE 500 // time to pause after setting a pin high (seems good to wait for it to stabilize ... maybe not)
+#define UPDATE_INTERVAL 5000 // how often to collect data (ms)
+#define READING_PAUSE 500 // time to pause after setting a pin high (ms) (seems good to wait for it to stabilize ... maybe not)
 #define NUM_PROBES 4 // number of probes
 
 
 // get some constants out of the way
 static const char* ssid = WIFI_NAME; // SSID
 static const char* password = WIFI_PW; // Password
+
 static const double BALANCE_RESISTOR = 22000.0;
 static const double BETA = 3500.0;
 static const double ROOM_TEMP = 298.15;
@@ -33,4 +34,3 @@ static struct pinDetails pinConfig = {
   {0,1,2,3}, // ... and their corresponding ADS1115 channels
   VOLTAGE_PIN // The pin to use to determine vRef
 };
-
