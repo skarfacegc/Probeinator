@@ -121,6 +121,18 @@ String getDataJson(int probe) {
   return retStr;
 }
 
+void dumpHistory() {
+    Serial.println("History: ");
+    for (int j = 0; j < NUM_PROBES; j++){
+      Serial.println("\tprobe_" + String(j) + " " + getDataJson(j));
+      // Serial.println("\tprobe_" + String(j) + " " + String(tempHistories[j].size()));
+    }
+    Serial.println();
+    Serial.println("Free Heap: " + String(ESP.getFreeHeap()));
+    Serial.println("min free words: " + String(uxTaskGetStackHighWaterMark( NULL )));
+    Serial.println("---"); 
+    Serial.println();
+}
 
 void getDataTask(void* params){
   pinDetails* pin_config = (pinDetails*) params;
@@ -176,8 +188,6 @@ void getDataTask(void* params){
     }
     
     Serial.println();
-
-  
     vTaskDelay(UPDATE_INTERVAL / portTICK_PERIOD_MS);
   }
 }
@@ -229,18 +239,6 @@ void loop()
   time_t local_time_t, utc;
   timeClient.update();
   dashboard.sendUpdates();
-
-    Serial.println("History: ");
-    for (int j = 0; j < NUM_PROBES; j++){
-      Serial.println("\tprobe_" + String(j) + " " + getDataJson(j));
-      // Serial.println("\tprobe_" + String(j) + " " + String(tempHistories[j].size()));
-    }
-    Serial.println();
-    Serial.println("Free Heap: " + String(ESP.getFreeHeap()));
-    Serial.println("min free words: " + String(uxTaskGetStackHighWaterMark( NULL )));
-    Serial.println("---"); 
-    Serial.println();
-
   vTaskDelay(UPDATE_INTERVAL / portTICK_PERIOD_MS);
 }
 
