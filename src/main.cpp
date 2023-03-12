@@ -39,6 +39,9 @@ TimeChangeRule myDST = {"EDT", Second, Sun, Mar, 2, -240};    // Daylight time =
 TimeChangeRule mySTD = {"EST", First, Sun, Nov, 2, -300};     // Standard time = UTC - 5 hours
 Timezone myTZ(myDST, mySTD);
 
+// Read/write mutex on the history array
+SemaphoreHandle_t historyMutex;
+
 // Reads the voltage from the thermistor voltage divider
 // Set voltage pin to input, thermistor pin to output
 // set thermistor pin high
@@ -105,6 +108,48 @@ void printData(int channel_num, double divider_voltage, double temp_k, double re
 }
 
 
+void storeData(int temp_f, int probe) {
+  if(xSemaphoreTake(historyMutex, MUTEX_W_TIMEOUT / portTICK_PERIOD_MS) == pdTRUE) {
+    tempHistories[probe].unshift(temp_f);
+    xSemaphoreGive(historyMutex);
+  } else {
+    Serial.println("!!!!!Failed to get write mutex!!!!!");
+  }
+  
+}
+
+String getDataJson(int probe) {
+  String retStr = "{";
+  if(xSemaphoreTake(historyMutex, MUTEX_R_TIMEOUT / portTICK_PERIOD_MS) == pdTRUE) {
+    for (int i = 0; i < tempHistories[probe].size(); i++){
+
+      if(i > 0) {
+        retStr += ",";
+      };
+
+      retStr += String(String(tempHistories[probe][i]));
+    }
+    xSemaphoreGive(historyMutex);
+  } else {
+    Serial.println("!!!! Failed to get read mutex !!!!");
+  }
+  retStr += "}";
+  return retStr;
+}
+
+void dumpHistory() {
+    Serial.println("History: ");
+    for (int j = 0; j < NUM_PROBES; j++){
+      Serial.println("\tprobe_" + String(j) + " " + getDataJson(j));
+      // Serial.println("\tprobe_" + String(j) + " " + String(tempHistories[j].size()));
+    }
+    Serial.println();
+    Serial.println("Free Heap: " + String(ESP.getFreeHeap()));
+    Serial.println("min free words: " + String(uxTaskGetStackHighWaterMark( NULL )));
+    Serial.println("---"); 
+    Serial.println();
+}
+
 void getDataTask(void* params){
   pinDetails* pin_config = (pinDetails*) params;
   
@@ -128,7 +173,8 @@ void getDataTask(void* params){
         temp_string = String(temp_f) + String("F");
       }
 
-      
+      storeData(temp_f, i);
+
       switch (i) {
         case 0:
           temperature0.update(temp_f);
@@ -157,7 +203,7 @@ void getDataTask(void* params){
       
     }
     
-    Serial.println("---");
+    Serial.println();
     vTaskDelay(UPDATE_INTERVAL / portTICK_PERIOD_MS);
   }
 }
@@ -179,6 +225,9 @@ void setup()
   }
   Serial.print("IP Address: ");
   Serial.println(WiFi.localIP());
+
+  // init our mutex
+  historyMutex = xSemaphoreCreateMutex();
 
   // init the lcd
   lcd.init();
@@ -205,8 +254,6 @@ void loop()
 {
   
   timeClient.update();
-
-  Serial.println(getTimeString());
   dashboard.sendUpdates();
   vTaskDelay(UPDATE_INTERVAL / portTICK_PERIOD_MS);
 }
