@@ -26,10 +26,10 @@ WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP);
 AsyncWebServer server(80);
 ESPDash dashboard(&server); 
-Card temperature0(&dashboard, TEMPERATURE_CARD, "Probe 1", "°F");
-Card temperature1(&dashboard, TEMPERATURE_CARD, "Probe 2", "°F");
-Card temperature2(&dashboard, TEMPERATURE_CARD, "Probe 3", "°F");
-Card temperature3(&dashboard, TEMPERATURE_CARD, "Probe 4", "°F");
+Card temperature0(&dashboard, TEMPERATURE_CARD, "probe_0", "°F");
+Card temperature1(&dashboard, TEMPERATURE_CARD, "probe_1", "°F");
+Card temperature2(&dashboard, TEMPERATURE_CARD, "probe_2", "°F");
+Card temperature3(&dashboard, TEMPERATURE_CARD, "probe_3", "°F");
 
 LiquidCrystal_I2C lcd(0x27,20,4);  
 
@@ -117,22 +117,22 @@ void getDataTask(void* params){
         case 0:
           temperature0.update(temp_f);
           lcd.setCursor(0,i);  
-          lcd.print("Probe " + String(i+1) + ": " + temp_string); 
+          lcd.print("probe_" + String(i) + ": " + temp_string); 
           break;
         case 1:
           temperature1.update(temp_f);
           lcd.setCursor(0,i);  
-          lcd.print("Probe " + String(i+1) + ": " + temp_string); 
+          lcd.print("probe_" + String(i) + ": " + temp_string); 
           break;
         case 2:
           temperature2.update(temp_f);
           lcd.setCursor(0,i);  
-          lcd.print("Probe " + String(i+1) + ": " + temp_string); 
+          lcd.print("probe_" + String(i) + ": " + temp_string); 
           break;
         case 3:
           temperature3.update(temp_f);
           lcd.setCursor(0,i);  
-          lcd.print("Probe " + String(i+1) + ": " + temp_string); 
+          lcd.print("probe_" + String(i) + ": " + temp_string); 
           break;
 
         default:
