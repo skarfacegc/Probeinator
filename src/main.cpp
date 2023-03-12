@@ -89,9 +89,23 @@ void printData(int channel_num, double divider_voltage, double temp_k, double re
 }
 
 
-void storeData(int temp_f) {
-  tempHistory.unshift(temp_f);
-  Serial.println("History Size: " + String(tempHistory.size()));
+void storeData(int temp_f, int probe) {
+  tempHistories[probe].unshift(temp_f);
+}
+
+String getDataJson(int probe) {
+  String retStr = "{";
+  for (int i = 0; i < tempHistories[probe].size(); i++){
+
+    if(i > 0) {
+      retStr += ",";
+    };
+
+    retStr += String(String(tempHistories[probe][i]));
+  }
+  retStr += "}";
+
+  return retStr;
 }
 
 
@@ -118,8 +132,8 @@ void getDataTask(void* params){
         temp_string = String(temp_f) + String("F");
       }
 
-      storeData(temp_f);
-      
+      storeData(temp_f, i);
+
       switch (i) {
         case 0:
           temperature0.update(temp_f);
@@ -148,7 +162,18 @@ void getDataTask(void* params){
       
     }
     
-    Serial.println("---");
+    Serial.println();
+
+    Serial.println("History: ");
+    for (int j = 0; j < NUM_PROBES; j++){
+      // Serial.println("\tprobe_" + String(j) + " " + getDataJson(j));
+      Serial.println("\tprobe_" + String(j) + " " + String(tempHistories[j].size()));
+    }
+    Serial.println();
+    Serial.println("Free Heap: " + String(ESP.getFreeHeap()));
+    Serial.println("min free words: " + String(uxTaskGetStackHighWaterMark( NULL )));
+    Serial.println("---"); 
+    Serial.println();
     vTaskDelay(UPDATE_INTERVAL / portTICK_PERIOD_MS);
   }
 }
@@ -196,17 +221,6 @@ void loop()
 {
   time_t local_time_t, utc;
   timeClient.update();
-  local_time_t = myTZ.toLocal(timeClient.getEpochTime());
-  Serial.println(
-                String(hour(local_time_t)) + ":" + 
-                String(minute(local_time_t)) + ":" + 
-                String(second(local_time_t)) + " " +
-                String(year(local_time_t)) + "." +
-                String(month(local_time_t)) + "." +
-                String(day(local_time_t))
-              );
-  Serial.println();
-
   dashboard.sendUpdates();
   vTaskDelay(UPDATE_INTERVAL / portTICK_PERIOD_MS);
 }

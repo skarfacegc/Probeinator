@@ -3,9 +3,12 @@
 #include "secrets.h" // needs to provide WIFI_NAME / WIFI_PW you need to create this
 
 
-#define UPDATE_INTERVAL 5000 // how often to collect data (ms)
+#define UPDATE_INTERVAL 1000 // how often to collect data (ms)
+#define HISTORY_INTERVAL 60000// how often to update history samples (ms)
+#define HISTORY_SIZE 1440 
 #define READING_PAUSE 500 // time to pause after setting a pin high (ms) (seems good to wait for it to stabilize ... maybe not)
 #define NUM_PROBES 4 // number of probes
+
 
 
 // get some constants out of the way
@@ -18,7 +21,7 @@ static const double BETA = 3500.0;
 static const double ROOM_TEMP = 298.15;
 static const double RESISTOR_ROOM_TEMP = 200000.0;
 
-// static const int VOLTAGE_PIN = GPIO_NUM_4;      // The pin that shares A0 used for measuring raw output voltage
+
 
 
 // Setup our thermistor pins and the corresponding ads channels
@@ -38,4 +41,4 @@ static struct pinDetails pinConfig = {
 //
 // Data storage
 //
-static CircularBuffer<int,1440> tempHistory;
+static CircularBuffer<int,HISTORY_SIZE> tempHistories[NUM_PROBES];
