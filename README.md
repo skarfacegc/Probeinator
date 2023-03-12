@@ -13,7 +13,7 @@ Rough BOM
   - [Data Sheet](https://drive.google.com/file/d/1ukcaFtORlLmLLrnIlCA0BvS1rEwbFoyd4ReqIFV8y3iL1sojljPAW8x8bYZW/view)
   - You can really use whatever you want here.  You need to know the following values
     - beta (default 3500)
-    - ref temp (default 20°C)
+    - ref temp (default 298.15K/25C)
     - resistance at ref temp (default 200000)
 - 1xLD1117 3.3v regulator
 - 1x100nf capacitor (for the LD1117 circuit)

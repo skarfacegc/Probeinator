@@ -1,5 +1,19 @@
+#include <ADS1X15.h>
 #include <Arduino.h>
+
 #include <CircularBuffer.h>
+
+// Network core
+#include <WiFi.h>
+#include <AsyncTCP.h>
+#include <NTPClient.h>
+#include <WiFiUdp.h>
+#include <ESPAsyncWebServer.h>
+
+// TimeHandling
+#include <Timezone.h>
+#include <TimeLib.h>
+
 #include "secrets.h" // needs to provide WIFI_NAME / WIFI_PW you need to create this
 
 
@@ -24,6 +38,19 @@ static const double ROOM_TEMP = 298.15;
 static const double RESISTOR_ROOM_TEMP = 200000.0;
 
 
+// Setup some default objects
+ADS1115 static ADS(0x48);
+WiFiUDP static ntpUDP;
+NTPClient static timeClient(ntpUDP);
+AsyncWebServer static server(80);
+
+// Setup timezone stuff (assuming US Eastern, change if ya want)
+TimeChangeRule static myDST = {"EDT", Second, Sun, Mar, 2, -240};    // Daylight time = UTC - 4 hours
+TimeChangeRule static mySTD = {"EST", First, Sun, Nov, 2, -300};     // Standard time = UTC - 5 hours
+Timezone static myTZ(myDST, mySTD);
+
+// Read/write mutex on the history array
+SemaphoreHandle_t static historyMutex = xSemaphoreCreateMutex();
 
 
 // Setup our thermistor pins and the corresponding ads channels
@@ -44,3 +71,16 @@ static struct pinDetails pinConfig = {
 // Data storage
 //
 static CircularBuffer<int,HISTORY_SIZE> tempHistories[NUM_PROBES];
+
+// Prototypes
+double getThermistorVoltage(int, int);
+double getTempK(double, double, double, double);
+double getResistance(double, double, double);
+double kToC(double);
+double cToF(double);
+double kToF(double);
+void dumpHistory();
+void printData(int, double, double, double);
+void storeData(int, int);
+String getDataJson(int);
+String getTimeString();
