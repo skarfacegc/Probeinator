@@ -6,6 +6,8 @@
 #define UPDATE_INTERVAL 1000 // how often to collect data (ms)
 #define HISTORY_INTERVAL 60000// how often to update history samples (ms)
 #define HISTORY_SIZE 1440 
+#define MUTEX_W_TIMEOUT 200
+#define MUTEX_R_TIMEOUT 400
 #define READING_PAUSE 500 // time to pause after setting a pin high (ms) (seems good to wait for it to stabilize ... maybe not)
 #define NUM_PROBES 4 // number of probes
 
