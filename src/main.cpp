@@ -89,6 +89,12 @@ void printData(int channel_num, double divider_voltage, double temp_k, double re
 }
 
 
+void storeData(int temp_f) {
+  tempHistory.unshift(temp_f);
+  Serial.println("History Size: " + String(tempHistory.size()));
+}
+
+
 void getDataTask(void* params){
   pinDetails* pin_config = (pinDetails*) params;
   
@@ -112,6 +118,7 @@ void getDataTask(void* params){
         temp_string = String(temp_f) + String("F");
       }
 
+      storeData(temp_f);
       
       switch (i) {
         case 0:

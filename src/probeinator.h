@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include <CircularBuffer.h>
 #include "secrets.h" // needs to provide WIFI_NAME / WIFI_PW you need to create this
 
 
@@ -33,3 +34,8 @@ static struct pinDetails pinConfig = {
   {GPIO_NUM_19, GPIO_NUM_18, GPIO_NUM_17, GPIO_NUM_16}, // List of GPIO pins
   {0,1,2,3}, // ... and their corresponding ADS1115 channels
 };
+
+//
+// Data storage
+//
+static CircularBuffer<int,1440> tempHistory;
