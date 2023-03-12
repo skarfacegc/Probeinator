@@ -3,11 +3,11 @@
 
 // TimeHandling
 #include <Timezone.h>
-#include <Time.h>
+#include <TimeLib.h>
+
 
 // Network core
 #include <WiFi.h>
-#include <WiFiUdp.h>
 #include <AsyncTCP.h>
 #include <NTPClient.h>
 
