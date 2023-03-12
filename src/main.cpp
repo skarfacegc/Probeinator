@@ -1,30 +1,11 @@
-// ADS1115 library
-#include <ADS1X15.h>
-
-// TimeHandling
-#include <Timezone.h>
-#include <TimeLib.h>
-
-
-// Network core
-#include <WiFi.h>
-#include <AsyncTCP.h>
-#include <NTPClient.h>
+// Defaults are in here
+#include "probeinator.h"
 
 // Web & UI
-#include <ESPAsyncWebServer.h>
 #include <ESPDash.h>
 #include <LiquidCrystal_I2C.h>
 
 
-// Defaults are in here
-#include "probeinator.h"
-
-// Setup some default objects
-ADS1115 ADS(0x48);
-WiFiUDP ntpUDP;
-NTPClient timeClient(ntpUDP);
-AsyncWebServer server(80);
 ESPDash dashboard(&server); 
 Card temperature0(&dashboard, TEMPERATURE_CARD, "probe_0", "°F");
 Card temperature1(&dashboard, TEMPERATURE_CARD, "probe_1", "°F");
@@ -34,167 +15,64 @@ Card temperature3(&dashboard, TEMPERATURE_CARD, "probe_3", "°F");
 LiquidCrystal_I2C lcd(0x27,20,4);  
 
 
-// Setup timezone stuff (assuming US Eastern, change if ya want)
-TimeChangeRule myDST = {"EDT", Second, Sun, Mar, 2, -240};    // Daylight time = UTC - 4 hours
-TimeChangeRule mySTD = {"EST", First, Sun, Nov, 2, -300};     // Standard time = UTC - 5 hours
-Timezone myTZ(myDST, mySTD);
-
-// Read/write mutex on the history array
-SemaphoreHandle_t historyMutex;
-
-// Reads the voltage from the thermistor voltage divider
-// Set voltage pin to input, thermistor pin to output
-// set thermistor pin high
-// read value
-// reset pins
-double getThermistorVoltage(int thermistor_pin, int ads_pin) {
-  return ADS.toVoltage(ADS.readADC(ads_pin));
-}
-
-// This is the beta formula to turn resistance into temperature
-// BETA is from the data sheet here: https://drive.google.com/file/d/1ukcaFtORlLmLLrnIlCA0BvS1rEwbFoyd4ReqIFV8y3iL1sojljPAW8x8bYZW/view
-double getTempK(double BETA, double ROOM_TEMP, double RESISTOR_ROOM_TEMP, double resistance) {
-  return (BETA * ROOM_TEMP) /
-         (BETA + (ROOM_TEMP * log(resistance / RESISTOR_ROOM_TEMP)));
-}
-
-// Figure out the thermistor resistance from the voltage coming out of the divider
-double getResistance(double BALANCE_RESISTOR, double VOLTAGE, double resistance) {
-  return (resistance * BALANCE_RESISTOR) / (VOLTAGE - resistance);
-}
-
-// Temperature conversion
-double kToC(double temp_k) {
-  return temp_k-273;
-}
-double cToF(double temp_c){
-  return (1.8 * temp_c) + 32;
-}
-double kToF(double temp_k){
-  return cToF(kToC(temp_k));
-}
-
-
-// Returns a formatted time string in local time
-String getTimeString() {
-  time_t local_time_t;
-  local_time_t = myTZ.toLocal(timeClient.getEpochTime());
-  return(
-          String(hour(local_time_t)) + ":" + 
-          String(minute(local_time_t)) + ":" + 
-          String(second(local_time_t)) + " " +
-          String(year(local_time_t)) + "." +
-          String(month(local_time_t)) + "." +
-          String(day(local_time_t))
-        );
-};
-
-
-// log the data
-void printData(int channel_num, double divider_voltage, double temp_k, double resistance) {
-  double temp_c = kToC(temp_k);
-  double temp_f = kToF(temp_k);
-
-  Serial.print("Channel: " + String(channel_num)); 
-    Serial.print("\t" + String(divider_voltage, 2) + "V");
-    Serial.print("\t" + String(resistance,2) + "R");
-    
-
-    // Only print this if we suspect a thermistor is attached
-    if(resistance > 10000) {
-      Serial.print("\t" + String(temp_k) + "k " + String(temp_c) + "c " + String(temp_f) + "f");
-    }
-    Serial.println();
-}
-
-
-void storeData(int temp_f, int probe) {
-  if(xSemaphoreTake(historyMutex, MUTEX_W_TIMEOUT / portTICK_PERIOD_MS) == pdTRUE) {
-    tempHistories[probe].unshift(temp_f);
-    xSemaphoreGive(historyMutex);
-  } else {
-    Serial.println("!!!!!Failed to get write mutex!!!!!");
-  }
-  
-}
-
-String getDataJson(int probe) {
-  String retStr = "{";
-  if(xSemaphoreTake(historyMutex, MUTEX_R_TIMEOUT / portTICK_PERIOD_MS) == pdTRUE) {
-    for (int i = 0; i < tempHistories[probe].size(); i++){
-
-      if(i > 0) {
-        retStr += ",";
-      };
-
-      retStr += String(String(tempHistories[probe][i]));
-    }
-    xSemaphoreGive(historyMutex);
-  } else {
-    Serial.println("!!!! Failed to get read mutex !!!!");
-  }
-  retStr += "}";
-  return retStr;
-}
-
-void dumpHistory() {
-    Serial.println("History: ");
-    for (int j = 0; j < NUM_PROBES; j++){
-      Serial.println("\tprobe_" + String(j) + " " + getDataJson(j));
-      // Serial.println("\tprobe_" + String(j) + " " + String(tempHistories[j].size()));
-    }
-    Serial.println();
-    Serial.println("Free Heap: " + String(ESP.getFreeHeap()));
-    Serial.println("min free words: " + String(uxTaskGetStackHighWaterMark( NULL )));
-    Serial.println("---"); 
-    Serial.println();
-}
-
+//
+// This is the main loop for data acquisition
+//
 void getDataTask(void* params){
   pinDetails* pin_config = (pinDetails*) params;
   
   while(1) {
     double Vref = INPUT_VOLTAGE;
-    
+
+    // loop through the probes and ...  
     for (int i = 0; i < NUM_PROBES; i++) {
+      // ... get the voltage from the sensor on the thermistor's divider and ...
       double thermistorVoltage = getThermistorVoltage(pin_config->thermistors[i], pin_config->adsChannels[i]);
+      // ... figure out the resistance of the thermistor then ...
       double resistance = getResistance(BALANCE_RESISTOR, Vref, thermistorVoltage);
+      // ... and we finally figure outthe temperature for that particular resistance
       double temp_k = getTempK(BETA, ROOM_TEMP, RESISTOR_ROOM_TEMP,resistance);
+
       printData(pin_config->adsChannels[i], thermistorVoltage, temp_k, resistance);
 
       int temp_f = kToF(temp_k);
-      String temp_string;
+      String temperature_display;
 
+      // If resistance is low, assume there's no probe
+      // Set some values and the string to display on the lcd
       if(resistance < 10000) {
         temp_f = 0;
-        temp_string = "--  "; // spaces here are to ensure we overwrite the F when the prev val was 111F
+        temperature_display = "--  "; // spaces here are to ensure we overwrite the F when the prev val was 111F
       }
       else{
-        temp_string = String(temp_f) + String("F");
+        temperature_display = String(temp_f) + String("F");
       }
 
+      // push the current temperature into the storage FIFO
       storeData(temp_f, i);
 
+      // Push updates to the UI and update the LCD
+      // There should be a better way of doing this ... going to work in the UI branch
       switch (i) {
         case 0:
           temperature0.update(temp_f);
           lcd.setCursor(0,i);  
-          lcd.print("probe_" + String(i) + ": " + temp_string); 
+          lcd.print("probe_" + String(i) + ": " + temperature_display); 
           break;
         case 1:
           temperature1.update(temp_f);
           lcd.setCursor(0,i);  
-          lcd.print("probe_" + String(i) + ": " + temp_string); 
+          lcd.print("probe_" + String(i) + ": " + temperature_display); 
           break;
         case 2:
           temperature2.update(temp_f);
           lcd.setCursor(0,i);  
-          lcd.print("probe_" + String(i) + ": " + temp_string); 
+          lcd.print("probe_" + String(i) + ": " + temperature_display); 
           break;
         case 3:
           temperature3.update(temp_f);
           lcd.setCursor(0,i);  
-          lcd.print("probe_" + String(i) + ": " + temp_string); 
+          lcd.print("probe_" + String(i) + ": " + temperature_display); 
           break;
 
         default:
@@ -226,18 +104,20 @@ void setup()
   Serial.print("IP Address: ");
   Serial.println(WiFi.localIP());
 
-  // init our mutex
-  historyMutex = xSemaphoreCreateMutex();
+  
 
   // init the lcd
   lcd.init();
   lcd.clear();         
   lcd.backlight(); 
   
+  // Start ntp/web/ADS interface
   timeClient.begin();
   server.begin();
   ADS.begin();
 
+
+  // Start the collection task
   TaskHandle_t xHandle = NULL;
   xTaskCreate(
     getDataTask,
@@ -251,8 +131,7 @@ void setup()
 
 
 void loop() 
-{
-  
+{  
   timeClient.update();
   dashboard.sendUpdates();
   vTaskDelay(UPDATE_INTERVAL / portTICK_PERIOD_MS);
