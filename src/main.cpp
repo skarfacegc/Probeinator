@@ -71,6 +71,22 @@ double kToF(double temp_k){
   return cToF(kToC(temp_k));
 }
 
+
+// Returns a formatted time string in local time
+String getTimeString() {
+  time_t local_time_t;
+  local_time_t = myTZ.toLocal(timeClient.getEpochTime());
+  return(
+          String(hour(local_time_t)) + ":" + 
+          String(minute(local_time_t)) + ":" + 
+          String(second(local_time_t)) + " " +
+          String(year(local_time_t)) + "." +
+          String(month(local_time_t)) + "." +
+          String(day(local_time_t))
+        );
+};
+
+
 // log the data
 void printData(int channel_num, double divider_voltage, double temp_k, double resistance) {
   double temp_c = kToC(temp_k);
@@ -187,19 +203,10 @@ void setup()
 
 void loop() 
 {
-  time_t local_time_t, utc;
+  
   timeClient.update();
-  local_time_t = myTZ.toLocal(timeClient.getEpochTime());
-  Serial.println(
-                String(hour(local_time_t)) + ":" + 
-                String(minute(local_time_t)) + ":" + 
-                String(second(local_time_t)) + " " +
-                String(year(local_time_t)) + "." +
-                String(month(local_time_t)) + "." +
-                String(day(local_time_t))
-              );
-  Serial.println();
 
+  Serial.println(getTimeString());
   dashboard.sendUpdates();
   vTaskDelay(UPDATE_INTERVAL / portTICK_PERIOD_MS);
 }
