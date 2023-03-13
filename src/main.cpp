@@ -94,7 +94,9 @@ void setup()
   Serial.print("ADS1X15_LIB_VERSION: ");
   Serial.println(ADS1X15_LIB_VERSION);
 
-  // get on the wifi
+  //
+  // Setup WiFi
+  //
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
   if (WiFi.waitForConnectResult() != WL_CONNECTED) {
@@ -110,12 +112,36 @@ void setup()
   lcd.init();
   lcd.clear();         
   lcd.backlight(); 
-  
-  // Start ntp/web/ADS interface
-  timeClient.begin();
+
+  // Start services
   server.begin();
   ADS.begin();
 
+
+  // Start NTP and force the first update if needed
+  timeClient.begin();
+  while(!timeClient.update()) {
+    timeClient.forceUpdate();
+  }
+  
+  
+  // Show the splash screen
+  lcd.setCursor(0,0);
+  lcd.print("    Probeinator");
+  lcd.setCursor(0,1);
+  lcd.print("IP: ");
+  lcd.print(WiFi.localIP().toString());
+  lcd.setCursor(0,2);
+  lcd.print(getTimeString(myTZ.toLocal(timeClient.getEpochTime())));
+  vTaskDelay(SPLASH_SCREEN_DELAY / portTICK_RATE_MS);
+  lcd.clear();
+  vTaskDelay(100 / portTICK_RATE_MS); // pause briefly for the lcd.clear
+
+
+  //
+  // Start Tasks
+  //
+  
 
   // Start the collection task
   TaskHandle_t xHandle = NULL;

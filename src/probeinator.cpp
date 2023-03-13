@@ -1,5 +1,6 @@
 #include <freertos/FreeRTOS.h>
 #include <freertos/semphr.h>
+#include <Timezone.h>
 #include "probeinator.h"
 
 // Reads the voltage from the thermistor voltage divider
@@ -37,19 +38,25 @@ double kToF(double temp_k){
 }
 
 // Returns a formatted time string in local time
-String getTimeString() {
-  time_t local_time_t;
-  local_time_t = myTZ.toLocal(timeClient.getEpochTime());
+String getTimeString(time_t epoch_time) {
+
   return(
-      String(hour(local_time_t)) + ":" + 
-      String(minute(local_time_t)) + ":" + 
-      String(second(local_time_t)) + " " +
-      String(year(local_time_t)) + "." +
-      String(month(local_time_t)) + "." +
-      String(day(local_time_t))
+      String(zeroPad(hour(epoch_time))) + ":" + 
+      String(zeroPad(minute(epoch_time))) + ":" + 
+      String(zeroPad(second(epoch_time))) + " " +
+      String(monthShortStr(month(epoch_time))) + " " +
+      String(zeroPad(day(epoch_time)))
   );
 };
 
+
+String zeroPad(int toPad) {
+  if(toPad < 10){
+    return String("0" + String(toPad));
+  }
+
+  return String(toPad);
+}
 
 void printData(int channel_num, double divider_voltage, double temp_k, double resistance) {
   double temp_c = kToC(temp_k);

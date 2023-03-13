@@ -24,6 +24,7 @@
 #define MUTEX_R_TIMEOUT 400
 #define READING_PAUSE 500 // time to pause after setting a pin high (ms) (seems good to wait for it to stabilize ... maybe not)
 #define NUM_PROBES 4 // number of probes
+#define SPLASH_SCREEN_DELAY 7000
 
 
 
@@ -48,6 +49,7 @@ AsyncWebServer static server(80);
 TimeChangeRule static myDST = {"EDT", Second, Sun, Mar, 2, -240};    // Daylight time = UTC - 4 hours
 TimeChangeRule static mySTD = {"EST", First, Sun, Nov, 2, -300};     // Standard time = UTC - 5 hours
 Timezone static myTZ(myDST, mySTD);
+
 
 // Read/write mutex on the history array
 SemaphoreHandle_t static historyMutex = xSemaphoreCreateMutex();
@@ -83,4 +85,5 @@ void dumpHistory();
 void printData(int, double, double, double);
 void storeData(int, int);
 String getDataJson(int);
-String getTimeString();
+String getTimeString(time_t);
+String zeroPad(int);
