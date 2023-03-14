@@ -30,7 +30,7 @@ void getDataTask(void* params){
       double thermistorVoltage = getThermistorVoltage(pin_config->thermistors[i], pin_config->adsChannels[i]);
       // ... figure out the resistance of the thermistor then ...
       double resistance = getResistance(BALANCE_RESISTOR, Vref, thermistorVoltage);
-      // ... and we finally figure outthe temperature for that particular resistance
+      // ... and we finally figure out the temperature for that particular resistance
       double temp_k = getTempK(BETA, ROOM_TEMP, RESISTOR_ROOM_TEMP,resistance);
 
       printData(pin_config->adsChannels[i], thermistorVoltage, temp_k, resistance);
@@ -114,15 +114,32 @@ void setup()
   lcd.backlight(); 
 
   // Start services
-  server.begin();
+
   ADS.begin();
 
-
-  // Start NTP and force the first update if needed
+ // Start NTP and force the first update if needed
   timeClient.begin();
   while(!timeClient.update()) {
     timeClient.forceUpdate();
   }
+  
+
+  //
+  // Start the webserver
+  //
+  server.begin();
+  // Initialize SPIFFS
+  if(!SPIFFS.begin(true)){
+    Serial.println("An Error has occurred while mounting SPIFFS");
+    return;
+  }
+
+  // This is mainly just an example of reading from the built in flash
+  // will expand on this in future commits
+  server.on("/probe_test", HTTP_GET, [](AsyncWebServerRequest *request){
+      request->send(SPIFFS, "/index.html", String(), false, NULL);
+  });
+
   
   
   // Show the splash screen

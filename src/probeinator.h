@@ -1,5 +1,6 @@
 #include <ADS1X15.h>
 #include <Arduino.h>
+#include <SPIFFS.h>
 
 #include <CircularBuffer.h>
 
