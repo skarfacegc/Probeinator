@@ -136,9 +136,16 @@ void setup()
 
   // This is mainly just an example of reading from the built in flash
   // will expand on this in future commits
-  server.on("/probe_test", HTTP_GET, [](AsyncWebServerRequest *request){
-      request->send(SPIFFS, "/index.html", String(), false, NULL);
+  server.on("/spf_test", HTTP_GET, [](AsyncWebServerRequest *request){
+      request->send(SPIFFS, "/index.html");
   });
+
+  server.on("/getTemps", HTTP_GET, [](AsyncWebServerRequest *request){
+      String tempData = getDataJson(0);
+      request->send(200, "application/json", tempData);
+  });
+
+  
 
   
   
