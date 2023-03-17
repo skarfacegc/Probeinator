@@ -24,3 +24,5 @@ Feeding the thermistors power from the 3.3v regulator to get a stable voltage, t
 I'm using 22k resistors as the fixed side of the divider, read that somewhere in a forum discussing this thermistor. Idea was to get the curve as steep as possible around the range you care most about, in this case ~200 (maybe 250) Didn't save the link :(
 
 I am using this project as an excuse to get a PCB made. Will be posting/sharing the Fritzing files eventually.
+
+Most of the dev is happening in the UI branch right now
