@@ -7,6 +7,15 @@
     <title>Probeinator</title>
 </head>
 <body>
+
+    <script type="text/javascript">
+
+        fetch("/getTemps")
+            .then((response) => response.json())
+            .then((data) => console.log(JSON.stringify(data)));
+
+    </script>
+
     Hello World 2!
 </body>
 </html>

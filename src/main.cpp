@@ -136,7 +136,7 @@ void setup()
 
   // This is mainly just an example of reading from the built in flash
   // will expand on this in future commits
-  server.on("/spf_test", HTTP_GET, [](AsyncWebServerRequest *request){
+  server.on("/temps", HTTP_GET, [](AsyncWebServerRequest *request){
       request->send(SPIFFS, "/index.html");
   });
 

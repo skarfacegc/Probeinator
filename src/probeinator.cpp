@@ -87,7 +87,7 @@ void storeData(int temp_f, int probe) {
 
 // Return the logged data as a json array
 String getDataJson(int probe) {
-  String retStr = "{";
+  String retStr = "[";
   if(xSemaphoreTake(historyMutex, MUTEX_R_TIMEOUT / portTICK_PERIOD_MS) == pdTRUE) {
     for (int i = 0; i < tempHistories[probe].size(); i++){
 
@@ -101,7 +101,7 @@ String getDataJson(int probe) {
   } else {
     Serial.println("!!!! Failed to get read mutex !!!!");
   }
-  retStr += "}";
+  retStr += "]";
   return retStr;
 }
 
