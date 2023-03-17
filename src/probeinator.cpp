@@ -41,11 +41,10 @@ double kToF(double temp_k){
 String getTimeString(time_t epoch_time) {
 
   return(
-      String(zeroPad(hour(epoch_time))) + ":" + 
-      String(zeroPad(minute(epoch_time))) + ":" + 
-      String(zeroPad(second(epoch_time))) + " " +
       String(monthShortStr(month(epoch_time))) + " " +
-      String(zeroPad(day(epoch_time)))
+      String(zeroPad(day(epoch_time))) + " " +
+      String(zeroPad(hour(epoch_time))) + ":" + 
+      String(zeroPad(minute(epoch_time)))
   );
 };
 
