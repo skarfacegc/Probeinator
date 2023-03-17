@@ -2,15 +2,7 @@
 #include "probeinator.h"
 
 // Web & UI
-#include <ESPDash.h>
 #include <LiquidCrystal_I2C.h>
-
-
-ESPDash dashboard(&server); 
-Card temperature0(&dashboard, TEMPERATURE_CARD, "probe_0", "°F");
-Card temperature1(&dashboard, TEMPERATURE_CARD, "probe_1", "°F");
-Card temperature2(&dashboard, TEMPERATURE_CARD, "probe_2", "°F");
-Card temperature3(&dashboard, TEMPERATURE_CARD, "probe_3", "°F");
 
 LiquidCrystal_I2C lcd(0x27,20,4);  
 
@@ -55,22 +47,18 @@ void getDataTask(void* params){
       // There should be a better way of doing this ... going to work in the UI branch
       switch (i) {
         case 0:
-          temperature0.update(temp_f);
           lcd.setCursor(0,i);  
           lcd.print("probe_" + String(i) + ": " + temperature_display); 
           break;
         case 1:
-          temperature1.update(temp_f);
           lcd.setCursor(0,i);  
           lcd.print("probe_" + String(i) + ": " + temperature_display); 
           break;
         case 2:
-          temperature2.update(temp_f);
           lcd.setCursor(0,i);  
           lcd.print("probe_" + String(i) + ": " + temperature_display); 
           break;
         case 3:
-          temperature3.update(temp_f);
           lcd.setCursor(0,i);  
           lcd.print("probe_" + String(i) + ": " + temperature_display); 
           break;
@@ -136,7 +124,7 @@ void setup()
 
   // This is mainly just an example of reading from the built in flash
   // will expand on this in future commits
-  server.on("/temps", HTTP_GET, [](AsyncWebServerRequest *request){
+  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
       request->send(SPIFFS, "/index.html");
   });
 
@@ -183,7 +171,6 @@ void setup()
 void loop() 
 {  
   timeClient.update();
-  dashboard.sendUpdates();
   vTaskDelay(UPDATE_INTERVAL / portTICK_PERIOD_MS);
 }
 
