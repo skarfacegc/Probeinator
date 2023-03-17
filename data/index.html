@@ -4,18 +4,37 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://code.highcharts.com/highcharts.js"></script>
     <title>Probeinator</title>
 </head>
 <body>
+    Hello World 2!
+    <div id="container" style="width:100%; height:400px;"></div>
 
     <script type="text/javascript">
+        const chart = Highcharts.chart('container', {
+            chart: {
+                type: 'line'
+            },
+            title: {
+                text: 'Probeinator'
+            },
+            yAxis: {
+                title: {
+                    text: 'Temp'
+                }
+            },
+            series: [{
+                data: []
+            }]
+        });
 
         fetch("/getTemps")
             .then((response) => response.json())
-            .then((data) => console.log(JSON.stringify(data)));
-
+            .then((data) => {
+                chart.series[0].setData(data);
+            });
     </script>
 
-    Hello World 2!
 </body>
 </html>
