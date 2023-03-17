@@ -73,7 +73,10 @@ static struct pinDetails pinConfig = {
 //
 // Data storage
 //
-static CircularBuffer<int,HISTORY_SIZE> tempHistories[NUM_PROBES];
+
+// using a float here, most of the data is a double, 
+// but this structure wont fit in memory as a double :)
+static CircularBuffer<float,HISTORY_SIZE> tempHistories[NUM_PROBES];
 
 // Prototypes
 double getThermistorVoltage(int, int);
@@ -84,7 +87,7 @@ double cToF(double);
 double kToF(double);
 void dumpHistory();
 void printData(int, double, double, double);
-void storeData(int, int);
+void storeData(float, int);
 String getDataJson(int);
 String getTimeString(time_t);
 String zeroPad(int);

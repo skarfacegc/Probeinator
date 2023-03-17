@@ -74,7 +74,7 @@ void printData(int channel_num, double divider_voltage, double temp_k, double re
 }
 
 
-void storeData(int temp_f, int probe) {
+void storeData(float temp_f, int probe) {
   if(xSemaphoreTake(historyMutex, MUTEX_W_TIMEOUT / portTICK_PERIOD_MS) == pdTRUE) {
     tempHistories[probe].unshift(temp_f);
     xSemaphoreGive(historyMutex);

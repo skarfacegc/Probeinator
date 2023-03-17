@@ -35,7 +35,7 @@ void getDataTask(void* params){
 
       printData(pin_config->adsChannels[i], thermistorVoltage, temp_k, resistance);
 
-      int temp_f = kToF(temp_k);
+      float temp_f = kToF(temp_k);
       String temperature_display;
 
       // If resistance is low, assume there's no probe
@@ -125,7 +125,7 @@ void setup()
   
 
   //
-  // Start the webserver
+  // Start the web server
   //
   server.begin();
   // Initialize SPIFFS
