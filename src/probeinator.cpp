@@ -78,9 +78,9 @@ void storeData(struct temperatureUpdate updateStruct) {
   if(lastUpdate + HISTORY_INTERVAL <= updateStruct.updateTime) {
     if(xSemaphoreTake(historyMutex, MUTEX_W_TIMEOUT / portTICK_PERIOD_MS) == pdTRUE) {
       for (int i = 0; i < NUM_PROBES; i++){
-        temperatureHistories[i].unshift(updateStruct.temperatures[i]);
+        temperatureHistories[i].push(updateStruct.temperatures[i]);
       }
-      temperatureHistoryTimes.unshift(updateStruct.updateTime);
+      temperatureHistoryTimes.push(updateStruct.updateTime);
       lastUpdate = updateStruct.updateTime;
       xSemaphoreGive(historyMutex);
     } else {
