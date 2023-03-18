@@ -14,15 +14,24 @@
         const refreshInterval = 5000;
         const chart = Highcharts.chart('container', {
             chart: {
-                type: 'line',
+                type: 'spline',
                 events: {
                     load: requestData
+                }
+            },
+            plotOptions: {
+                series: {
+                    marker: {
+                        enabled: false,
+                    }
                 }
             },
             title: {
                 text: 'Probeinator'
             },
             yAxis: {
+                tickInterval: 1,
+                minRange: 5,
                 title: {
                     text: 'Temp'
                 }
