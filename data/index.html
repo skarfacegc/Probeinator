@@ -16,7 +16,7 @@
             chart: {
                 type: 'spline',
                 events: {
-                    load: requestData
+                    load: updateGraph
                 }
             },
             plotOptions: {
@@ -38,7 +38,7 @@
             },
             xAxis: {
                 type: 'datetime',
-                minrange: 180 * 1000,
+                minRange: 180 * 1000,
                 minTickInterval: 60 * 1000,
                 labels: {
                     rotation: 90
@@ -51,13 +51,13 @@
 
 
         // Update data every refresh interval
-        async function requestData() {
+        async function updateGraph() {
             const result = await fetch('/getTemps');
             if (result.ok) {
                 const data = await result.json();
                 chart.series[0].setData(data);
             }
-            setTimeout(requestData, refreshInterval);
+            setTimeout(updateGraph, refreshInterval);
         }
     </script>
 
