@@ -15,17 +15,20 @@ void getDataTask(void* params){
   
   while(1) {
     double Vref = INPUT_VOLTAGE;
+    struct temperatureUpdate updateStruct;
+
+    updateStruct.updateTime = timeClient.getEpochTime();
 
     // loop through the probes and ...  
-    for (int i = 0; i < NUM_PROBES; i++) {
+    for (int probe = 0; probe < NUM_PROBES; probe++) {
       // ... get the voltage from the sensor on the thermistor's divider and ...
-      double thermistorVoltage = getThermistorVoltage(pin_config->thermistors[i], pin_config->adsChannels[i]);
+      double thermistorVoltage = getThermistorVoltage(pin_config->thermistors[probe], pin_config->adsChannels[probe]);
       // ... figure out the resistance of the thermistor then ...
       double resistance = getResistance(BALANCE_RESISTOR, Vref, thermistorVoltage);
       // ... and we finally figure out the temperature for that particular resistance
       double temp_k = getTempK(BETA, ROOM_TEMP, RESISTOR_ROOM_TEMP,resistance);
 
-      printData(pin_config->adsChannels[i], thermistorVoltage, temp_k, resistance);
+      printData(pin_config->adsChannels[probe], thermistorVoltage, temp_k, resistance);
 
       float temp_f = kToF(temp_k);
       String temperature_display;
@@ -39,36 +42,14 @@ void getDataTask(void* params){
       else{
         temperature_display = String(temp_f) + String("F");
       }
-
-      // push the current temperature into the storage FIFO
-      storeData(temp_f, i);
-
-      // Push updates to the UI and update the LCD
-      // There should be a better way of doing this ... going to work in the UI branch
-      switch (i) {
-        case 0:
-          lcd.setCursor(0,i);  
-          lcd.print("probe_" + String(i) + ": " + temperature_display); 
-          break;
-        case 1:
-          lcd.setCursor(0,i);  
-          lcd.print("probe_" + String(i) + ": " + temperature_display); 
-          break;
-        case 2:
-          lcd.setCursor(0,i);  
-          lcd.print("probe_" + String(i) + ": " + temperature_display); 
-          break;
-        case 3:
-          lcd.setCursor(0,i);  
-          lcd.print("probe_" + String(i) + ": " + temperature_display); 
-          break;
-
-        default:
-          Serial.println("shouldn't have gotten here: getData switch");
-      }
       
+      // set the temp in the update struct and update the LCD
+      updateStruct.temperatures[probe] = temp_f;
+      lcd.setCursor(0,probe);  
+      lcd.print("probe_" + String(probe) + ": " + temperature_display);   
     }
-    
+    // push the current temperature into the storage FIFO
+    storeData(updateStruct);
     Serial.println();
     vTaskDelay(UPDATE_INTERVAL / portTICK_PERIOD_MS);
   }

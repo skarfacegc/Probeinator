@@ -14,12 +14,13 @@
 // TimeHandling
 #include <Timezone.h>
 #include <TimeLib.h>
+#include <Int64String.h>
 
 #include "secrets.h" // needs to provide WIFI_NAME / WIFI_PW you need to create this
 
 
 #define UPDATE_INTERVAL 1000 // how often to collect data (ms)
-#define HISTORY_INTERVAL 60000// how often to update history samples (ms)
+#define HISTORY_INTERVAL 60// how often to update history samples (SECONDS!)
 #define HISTORY_SIZE 1440 
 #define MUTEX_W_TIMEOUT 200
 #define MUTEX_R_TIMEOUT 400
@@ -38,6 +39,8 @@ static const double BALANCE_RESISTOR = 22000.0;
 static const double BETA = 3500.0;
 static const double ROOM_TEMP = 298.15;
 static const double RESISTOR_ROOM_TEMP = 200000.0;
+
+static double lastUpdate = 0;  // tracks when the last update was made to the storage buffer
 
 
 // Setup some default objects
@@ -70,13 +73,20 @@ static struct pinDetails pinConfig = {
   {0,1,2,3}, // ... and their corresponding ADS1115 channels
 };
 
+// This is used to hold the temperature updates
+struct temperatureUpdate {
+  float temperatures[NUM_PROBES];
+  long updateTime;
+};
+
 //
 // Data storage
 //
 
 // using a float here, most of the data is a double, 
 // but this structure wont fit in memory as a double :)
-static CircularBuffer<float,HISTORY_SIZE> tempHistories[NUM_PROBES];
+static CircularBuffer<float,HISTORY_SIZE> temperatureHistories[NUM_PROBES];
+static CircularBuffer<int,HISTORY_SIZE> temperatureHistoryTimes;
 
 // Prototypes
 double getThermistorVoltage(int, int);
@@ -87,7 +97,7 @@ double cToF(double);
 double kToF(double);
 void dumpHistory();
 void printData(int, double, double, double);
-void storeData(float, int);
+void storeData(struct temperatureUpdate);
 String getDataJson(int);
 String getTimeString(time_t);
 String zeroPad(int);

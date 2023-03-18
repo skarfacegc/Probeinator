@@ -74,13 +74,19 @@ void printData(int channel_num, double divider_voltage, double temp_k, double re
 }
 
 
-void storeData(float temp_f, int probe) {
-  if(xSemaphoreTake(historyMutex, MUTEX_W_TIMEOUT / portTICK_PERIOD_MS) == pdTRUE) {
-    tempHistories[probe].unshift(temp_f);
-    xSemaphoreGive(historyMutex);
-  } else {
-    Serial.println("!!!!!Failed to get write mutex!!!!!");
-  }
+void storeData(struct temperatureUpdate updateStruct) {
+  if(lastUpdate + HISTORY_INTERVAL <= updateStruct.updateTime) {
+    if(xSemaphoreTake(historyMutex, MUTEX_W_TIMEOUT / portTICK_PERIOD_MS) == pdTRUE) {
+      for (int i = 0; i < NUM_PROBES; i++){
+        temperatureHistories[i].unshift(updateStruct.temperatures[i]);
+      }
+      temperatureHistoryTimes.unshift(updateStruct.updateTime);
+      lastUpdate = updateStruct.updateTime;
+      xSemaphoreGive(historyMutex);
+    } else {
+      Serial.println("!!!!!Failed to get write mutex!!!!!");
+    }
+  } 
 }
 
 
@@ -88,13 +94,16 @@ void storeData(float temp_f, int probe) {
 String getDataJson(int probe) {
   String retStr = "[";
   if(xSemaphoreTake(historyMutex, MUTEX_R_TIMEOUT / portTICK_PERIOD_MS) == pdTRUE) {
-    for (int i = 0; i < tempHistories[probe].size(); i++){
+    for (int i = 0; i < temperatureHistories[probe].size(); i++){
 
       if(i > 0) {
         retStr += ",";
       };
-
-      retStr += String(String(tempHistories[probe][i]));
+      retStr += "[";
+      retStr += int64String((uint64_t) myTZ.toLocal(temperatureHistoryTimes[i]) * 1000ull);
+      retStr += ",";
+      retStr += String(temperatureHistories[probe][i]);
+      retStr += "]";
     }
     xSemaphoreGive(historyMutex);
   } else {
