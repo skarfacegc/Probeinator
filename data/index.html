@@ -37,7 +37,12 @@
                 }
             },
             xAxis: {
-                type: 'datetime'
+                type: 'datetime',
+                minrange: 180 * 1000,
+                minTickInterval: 60 * 1000,
+                labels: {
+                    rotation: 90
+                }
             },
             series: [{
                 data: []
