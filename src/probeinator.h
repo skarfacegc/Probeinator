@@ -11,6 +11,10 @@
 #include <WiFiUdp.h>
 #include <ESPAsyncWebServer.h>
 
+
+// Timers etc are handled in ms. Things related to clocktime
+// like the history update interval are all handled in seconds
+// Conversions are done as late as possible when needed
 // TimeHandling
 #include <Timezone.h>
 #include <TimeLib.h>
@@ -27,6 +31,7 @@
 #define READING_COUNT 3 // number of readings to average together per poll
 #define PROBE_READ_DELAY 100 // delay between each probe reading when averaging READING_COUNT
 #define NUM_PROBES 4 // number of probes
+#define MAX_PROBE_NAME 10
 #define SPLASH_SCREEN_DELAY 6 * 1000
 
 
@@ -65,6 +70,7 @@ SemaphoreHandle_t static historyMutex = xSemaphoreCreateMutex();
 struct pinDetails {
   int thermistors[NUM_PROBES];
   int adsChannels[NUM_PROBES];
+  char probeNames[NUM_PROBES][10];
 };
 
 // NOTE: Code assumes that the first thermistor and the voltage pin are connected to the 
@@ -72,6 +78,7 @@ struct pinDetails {
 static struct pinDetails pinConfig = {
   {GPIO_NUM_19, GPIO_NUM_18, GPIO_NUM_17, GPIO_NUM_16}, // List of GPIO pins
   {0,1,2,3}, // ... and their corresponding ADS1115 channels
+  {"probe_0","probe_1","probe_2","probe_3"} // ... and their names
 };
 
 // This is used to hold the temperature updates
