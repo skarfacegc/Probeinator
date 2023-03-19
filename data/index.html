@@ -8,9 +8,6 @@
         body {
             background-color: #4b4b4b;
         }
-        .charts {
-            border-radius: 25px;
-        }
     </style>
     <script src="https://code.highcharts.com/highcharts.js"></script>
     <title>Probeinator</title>
@@ -20,13 +17,25 @@
 
     <script type="text/javascript">
         const refreshInterval = 5000;
+
+        Highcharts.setOptions({
+            chart: {
+                style: {
+                    fontFamily: 'courier'
+                }
+            }
+        });
+
+
         const chart = Highcharts.chart('container', {
             chart: {
                 type: 'spline',
+                borderRadius: 15,
                 events: {
                     load: updateGraph
                 }
             },
+
             plotOptions: {
                 series: {
                     marker: {
@@ -35,7 +44,20 @@
                 }
             },
             title: {
-                text: 'Probeinator'
+                text: undefined
+            },
+            credits: {
+                position: {
+                    verticalAlign: 'top',
+                }
+            },
+            legend: {
+                layout: 'horizontal',
+                floating: false,
+                align: 'left',
+                verticalAlign: 'top',
+                x: 30,
+                y: 0,
             },
             yAxis: {
                 tickInterval: 1,
@@ -53,6 +75,7 @@
                 }
             },
             series: [{
+                name: 'probe_0',
                 data: []
             }]
         });
