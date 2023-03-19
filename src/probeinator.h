@@ -24,9 +24,10 @@
 #define HISTORY_SIZE 1440 
 #define MUTEX_W_TIMEOUT 200
 #define MUTEX_R_TIMEOUT 400
-#define READING_PAUSE 500 // time to pause after setting a pin high (ms) (seems good to wait for it to stabilize ... maybe not)
+#define READING_COUNT 3 // number of readings to average together per poll
+#define PROBE_READ_DELAY 100 // delay between each probe reading when averaging READING_COUNT
 #define NUM_PROBES 4 // number of probes
-#define SPLASH_SCREEN_DELAY 7000
+#define SPLASH_SCREEN_DELAY 6 * 1000
 
 
 

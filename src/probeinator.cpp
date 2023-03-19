@@ -9,7 +9,12 @@
 // read value
 // reset pins
 double getThermistorVoltage(int thermistor_pin, int ads_pin) {
-  return ADS.toVoltage(ADS.readADC(ads_pin));
+  double reading_sum = 0;
+  for (int i = 0; i < READING_COUNT; i++){
+    reading_sum = reading_sum + ADS.readADC(ads_pin);
+    vTaskDelay(PROBE_READ_DELAY * portTICK_PERIOD_MS);
+  }
+  return ADS.toVoltage(reading_sum / READING_COUNT);
 }
 
 
