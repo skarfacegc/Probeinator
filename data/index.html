@@ -60,7 +60,8 @@
                 y: 0,
             },
             yAxis: {
-                tickInterval: 1,
+                tickInterval: 5,
+                minorTickInterval: 1,
                 minRange: 5,
                 title: {
                     text: 'Temp'
@@ -73,21 +74,21 @@
                 labels: {
                     rotation: 90
                 }
-            },
-            series: [{
-                name: 'probe_0',
-                data: []
-            }]
+            }
         });
 
 
         // Update data every refresh interval
         async function updateGraph() {
             const result = await fetch('/getTemps');
-            if (result.ok) {
-                const data = await result.json();
-                chart.series[0].setData(data);
-            }
+            const resultJson = await result.json();
+
+            resultJson.forEach(series => {
+                if(!chart.get(series.id)) {
+                    chart.addSeries(series);
+                }
+                chart.get(series.id).setData(series.data);
+            });
             setTimeout(updateGraph, refreshInterval);
         }
     </script>

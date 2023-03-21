@@ -111,7 +111,7 @@ void setup()
   });
 
   server.on("/getTemps", HTTP_GET, [](AsyncWebServerRequest *request){
-      String tempData = getDataJson(0);
+      String tempData = getDataJson();
       request->send(200, "application/json", tempData);
   });
 

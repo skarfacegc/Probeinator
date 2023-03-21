@@ -96,7 +96,7 @@ void storeData(struct temperatureUpdate updateStruct) {
 
 
 // Return the logged data as a json array
-String getDataJson(int probe) {
+String getProbeDataJson(int probe) {
   String retStr = "[";
   if(xSemaphoreTake(historyMutex, MUTEX_R_TIMEOUT / portTICK_PERIOD_MS) == pdTRUE) {
     for (int i = 0; i < temperatureHistories[probe].size(); i++){
@@ -118,14 +118,27 @@ String getDataJson(int probe) {
   return retStr;
 }
 
+String getDataJson() {
+  String retStr = "[";
+  for (int probe = 0; probe < NUM_PROBES; probe++){
+    retStr += "{";
+    retStr += "\"id\": \"" + String(pinConfig.adsChannels[probe]) + "\",";
+    retStr += "\"name\": \"" + String(pinConfig.probeNames[probe]) + "\",";
+    retStr += "\"data\": " + getProbeDataJson(probe);
+    retStr += "}";
+    if(probe != NUM_PROBES-1){ // if we're not on the last probe
+      retStr += ", "; // we need a comma
+    } 
+  }
+  retStr += "]";
+
+  return retStr;
+}
 
 // dump the contents of the history array for each probe
 void dumpHistory() {
     Serial.println("History: ");
-    for (int j = 0; j < NUM_PROBES; j++){
-      Serial.println("\tprobe_" + String(j) + " " + getDataJson(j));
-      // Serial.println("\tprobe_" + String(j) + " " + String(tempHistories[j].size()));
-    }
+    Serial.println(getDataJson());
     Serial.println();
     Serial.println("Free Heap: " + String(ESP.getFreeHeap()));
     Serial.println("min free words: " + String(uxTaskGetStackHighWaterMark( NULL )));

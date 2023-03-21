@@ -12,9 +12,10 @@
 #include <ESPAsyncWebServer.h>
 
 
-// Timers etc are handled in ms. Things related to clocktime
+// Timers etc are handled in ms. Things related to clock-time
 // like the history update interval are all handled in seconds
 // Conversions are done as late as possible when needed
+//
 // TimeHandling
 #include <Timezone.h>
 #include <TimeLib.h>
@@ -106,6 +107,7 @@ double kToF(double);
 void dumpHistory();
 void printData(int, double, double, double);
 void storeData(struct temperatureUpdate);
-String getDataJson(int);
+String getProbeDataJson(int);
+String getDataJson();
 String getTimeString(time_t);
 String zeroPad(int);
