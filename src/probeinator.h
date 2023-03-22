@@ -29,8 +29,8 @@
 #define HISTORY_SIZE 1440 
 #define MUTEX_W_TIMEOUT 200
 #define MUTEX_R_TIMEOUT 400
-#define READING_COUNT 3 // number of readings to average together per poll
-#define PROBE_READ_DELAY 100 // delay between each probe reading when averaging READING_COUNT
+#define READING_COUNT 5 // number of readings to average together per poll
+#define PROBE_READ_DELAY 50 // delay between each probe reading when averaging READING_COUNT
 #define NUM_PROBES 4 // number of probes
 #define MAX_PROBE_NAME 10
 #define SPLASH_SCREEN_DELAY 6 * 1000
