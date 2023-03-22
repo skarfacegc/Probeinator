@@ -8,7 +8,7 @@
 // set thermistor pin high
 // read value
 // reset pins
-double getThermistorVoltage(int thermistor_pin, int ads_pin) {
+double getThermistorVoltage(int ads_pin) {
   double reading_sum = 0;
   for (int i = 0; i < READING_COUNT; i++){
     reading_sum = reading_sum + ADS.readADC(ads_pin);

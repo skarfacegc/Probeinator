@@ -98,7 +98,7 @@ static CircularBuffer<float,HISTORY_SIZE> temperatureHistories[NUM_PROBES];
 static CircularBuffer<int,HISTORY_SIZE> temperatureHistoryTimes;
 
 // Prototypes
-double getThermistorVoltage(int, int);
+double getThermistorVoltage(int);
 double getTempK(double, double, double, double);
 double getResistance(double, double, double);
 double kToC(double);
