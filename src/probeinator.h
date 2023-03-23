@@ -54,7 +54,7 @@ static double lastUpdate = 0;  // tracks when the last update was made to the st
 ADS1115 static ADS(0x48);
 WiFiUDP static ntpUDP;
 NTPClient static timeClient(ntpUDP);
-AsyncWebServer static server(80);
+AsyncWebServer static webServer(80);
 
 // Setup timezone stuff (assuming US Eastern, change if ya want)
 TimeChangeRule static myDST = {"EDT", Second, Sun, Mar, 2, -240};    // Daylight time = UTC - 4 hours

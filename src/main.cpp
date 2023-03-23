@@ -97,7 +97,7 @@ void setup()
   //
   // Start the web server
   //
-  server.begin();
+  webServer.begin();
   // Initialize SPIFFS
   if(!SPIFFS.begin(true)){
     Serial.println("An Error has occurred while mounting SPIFFS");
@@ -106,11 +106,11 @@ void setup()
 
   // This is mainly just an example of reading from the built in flash
   // will expand on this in future commits
-  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
+  webServer.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
       request->send(SPIFFS, "/index.html");
   });
 
-  server.on("/getTemps", HTTP_GET, [](AsyncWebServerRequest *request){
+  webServer.on("/getTemps", HTTP_GET, [](AsyncWebServerRequest *request){
       String tempData = getDataJson();
       request->send(200, "application/json", tempData);
   });
