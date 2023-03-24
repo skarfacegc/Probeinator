@@ -111,6 +111,10 @@ void setup()
       request->send(SPIFFS, "/index.html");
   });
 
+  webServer.on("/settings", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(SPIFFS, "/settings.html");
+  });
+
   webServer.on("/getTemps", HTTP_GET, [](AsyncWebServerRequest *request){
       String tempData = getDataJson();
       request->send(200, "application/json", tempData);
