@@ -25,8 +25,8 @@
 
 
 #define UPDATE_INTERVAL 1000 // how often to collect data (ms)
-#define HISTORY_INTERVAL 60// how often to update history samples (SECONDS!)
-#define HISTORY_SIZE 1440 
+#define HISTORY_INTERVAL 120// how often to update history samples (SECONDS!)
+#define HISTORY_SIZE 720 
 #define MUTEX_W_TIMEOUT 200
 #define MUTEX_R_TIMEOUT 400
 #define READING_COUNT 5 // number of readings to average together per poll
@@ -110,7 +110,9 @@ double kToF(double);
 void dumpHistory();
 void printData(int, double, double, double);
 void storeData(struct temperatureUpdate);
+void saveLastTemps(struct temperatureUpdate);
 String getProbeDataJson(int);
 String getDataJson();
+String getLastTempsJson();
 String getTimeString(time_t);
 String zeroPad(int);
