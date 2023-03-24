@@ -51,6 +51,7 @@ void getDataTask(void* params){
     }
     // push the current temperature into the storage FIFO
     storeData(updateStruct);
+    saveLastTemps(updateStruct);
     Serial.println();
     vTaskDelay(UPDATE_INTERVAL / portTICK_PERIOD_MS);
   }
@@ -113,6 +114,11 @@ void setup()
   webServer.on("/getTemps", HTTP_GET, [](AsyncWebServerRequest *request){
       String tempData = getDataJson();
       request->send(200, "application/json", tempData);
+  });
+
+  webServer.on("/getLastTemps", HTTP_GET, [](AsyncWebServerRequest *request){
+    String tempData = getLastTempsJson();
+    request->send(200, "application/json", tempData);
   });
 
   webServer.on("/updateConfig", HTTP_POST, [](AsyncWebServerRequest *request){

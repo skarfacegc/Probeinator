@@ -53,15 +53,16 @@ String getTimeString(time_t epoch_time) {
   );
 };
 
-
+// Pad numbers with leading 0s for time rendering
 String zeroPad(int toPad) {
   if(toPad < 10){
     return String("0" + String(toPad));
   }
-
   return String(toPad);
 }
 
+
+// Print probe results
 void printData(int channel_num, double divider_voltage, double temp_k, double resistance) {
   double temp_c = kToC(temp_k);
   double temp_f = kToF(temp_k);
@@ -78,7 +79,7 @@ void printData(int channel_num, double divider_voltage, double temp_k, double re
     Serial.println();
 }
 
-
+// Update temp history.  Only save data every HISTORY_INTERVAL seconds
 void storeData(struct temperatureUpdate updateStruct) {
   if(lastUpdate + HISTORY_INTERVAL <= updateStruct.updateTime) {
     if(xSemaphoreTake(historyMutex, MUTEX_W_TIMEOUT / portTICK_PERIOD_MS) == pdTRUE) {
@@ -118,6 +119,7 @@ String getProbeDataJson(int probe) {
   return retStr;
 }
 
+// Get all of the probe data for use in the UI
 String getDataJson() {
   String retStr = "[";
   for (int probe = 0; probe < NUM_PROBES; probe++){
@@ -134,6 +136,41 @@ String getDataJson() {
 
   return retStr;
 }
+
+
+// store the latest temperature in the pin details struct
+void saveLastTemps(struct temperatureUpdate updateStruct){
+  if(xSemaphoreTake(probeMutex, MUTEX_W_TIMEOUT / portTICK_PERIOD_MS) == pdTRUE) {
+    for (int i = 0; i < NUM_PROBES; i++){
+        pinConfig.lastTemps[i] = updateStruct.temperatures[i];
+      }
+  } else {
+  Serial.println("!!! Couldn't get W mutex to save temps");
+  }
+  xSemaphoreGive(probeMutex);
+}
+
+// returns the last recorded temperature for the given probe
+String getLastTempsJson() {
+  String retString = "{[";
+  if(xSemaphoreTake(probeMutex, MUTEX_W_TIMEOUT / portTICK_PERIOD_MS) == pdTRUE) {
+    for(int probe=0; probe < NUM_PROBES;probe++){
+      retString += "{\"name\": \"" + String(pinConfig.probeNames[probe]) + "\",";
+      retString += "\"last_temp\": " + String(pinConfig.lastTemps[probe]) + "}"; 
+      if(probe != NUM_PROBES-1){ // if we're not on the last probe
+        retString += ", "; // we need a comma
+      }
+    }
+    
+    
+  } else {
+  Serial.println("!!! Couldn't get R mutex to read temps");
+  }
+  xSemaphoreGive(probeMutex);
+  retString += "]}";
+  return retString;
+}
+
 
 // dump the contents of the history array for each probe
 void dumpHistory() {
