@@ -8,12 +8,36 @@
         body {
             background-color: #4b4b4b;
         }
+        .probeCard {
+            background-color: white;
+            border-radius: 15px;
+        }
+
+        .tempData {
+                    display: grid;
+                    grid-template-columns: 20% 80% repeat(3, auto);
+                    grid-template-rows: repeat(5, 1fr);
+                    grid-column-gap: 2px;
+                    grid-row-gap: 2px;
+                }
+        .div1 { grid-area: 1 / 1 / 2 / 2; }
+        .div2 { grid-area: 2 / 1 / 3 / 2; }
+        .div3 { grid-area: 3 / 1 / 4 / 2; }
+        .div4 { grid-area: 4 / 1 / 5 / 2; }
+        .containerGrid { grid-area: 1 / 2 / 5 / 4; }
     </style>
     <script src="https://code.highcharts.com/highcharts.js"></script>
     <title>Probeinator</title>
 </head>
 <body>
-    <div id="container" class="charts" style="width:100%; height:400px;"></div>
+    <div class="tempData">
+        <div class="div1 probeCard">test</div>
+        <div class="div2 probeCard">test</div>
+        <div class="div3 probeCard">test</div>
+        <div class="div4 probeCard">test</div>
+        <div id="container" class="containerGrid charts" style="width:100%; height:400px;"></div>
+    </div>
+    
 
     <script type="text/javascript">
         const refreshInterval = 5000;
