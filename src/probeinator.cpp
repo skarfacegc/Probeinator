@@ -152,7 +152,7 @@ void saveLastTemps(struct temperatureUpdate updateStruct){
 
 // returns the last recorded temperature for the given probe
 String getLastTempsJson() {
-  String retString = "{[";
+  String retString = "[";
   if(xSemaphoreTake(probeMutex, MUTEX_W_TIMEOUT / portTICK_PERIOD_MS) == pdTRUE) {
     for(int probe=0; probe < NUM_PROBES;probe++){
       retString += "{\"name\": \"" + String(pinConfig.probeNames[probe]) + "\",";
@@ -167,7 +167,7 @@ String getLastTempsJson() {
   Serial.println("!!! Couldn't get R mutex to read temps");
   }
   xSemaphoreGive(probeMutex);
-  retString += "]}";
+  retString += "]";
   return retString;
 }
 
