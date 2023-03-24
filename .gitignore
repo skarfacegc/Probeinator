@@ -1,4 +1,5 @@
 .pio
 .vscode
+out/
 compile_commands.json
 src/secrets.h
