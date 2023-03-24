@@ -155,7 +155,8 @@ String getLastTempsJson() {
   String retString = "[";
   if(xSemaphoreTake(probeMutex, MUTEX_W_TIMEOUT / portTICK_PERIOD_MS) == pdTRUE) {
     for(int probe=0; probe < NUM_PROBES;probe++){
-      retString += "{\"name\": \"" + String(pinConfig.probeNames[probe]) + "\",";
+      retString += "{\"id\": \"" + String(pinConfig.adsChannels[probe]) + "\", ";
+      retString += "\"name\": \"" + String(pinConfig.probeNames[probe]) + "\", ";
       retString += "\"last_temp\": " + String(pinConfig.lastTemps[probe]) + "}"; 
       if(probe != NUM_PROBES-1){ // if we're not on the last probe
         retString += ", "; // we need a comma
