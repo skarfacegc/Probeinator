@@ -1,7 +1,11 @@
 #include <freertos/FreeRTOS.h>
 #include <freertos/semphr.h>
 #include <Timezone.h>
+#include <Preferences.h>
 #include "probeinator.h"
+
+
+Preferences preferences;
 
 // Reads the voltage from the thermistor voltage divider
 // Set voltage pin to input, thermistor pin to output
@@ -182,4 +186,40 @@ void dumpHistory() {
     Serial.println("min free words: " + String(uxTaskGetStackHighWaterMark( NULL )));
     Serial.println("---"); 
     Serial.println();
+}
+
+void saveConfig(int probe, struct probeConfig config_data){
+  Serial.println("Saving " + String(probe));
+  if(preferences.begin(getPrefNamespace(probe).c_str(), false)){
+    preferences.putBytes("probeName", config_data.probeName, NAME_LENGTH);
+    preferences.end();
+  } else {
+    Serial.println("!!! Couldn't open write prefs probe: " + String(probe));
+  }
+  
+}
+
+probeConfig getConfig(int probe){
+  struct probeConfig config_data = {};
+  if(preferences.begin(getPrefNamespace(probe).c_str(), true)) {
+    preferences.getBytes("probeName", &config_data.probeName, NAME_LENGTH);
+    preferences.end();
+  } else {
+    Serial.println("!!! Failed to get config for probe: " + String(probe));
+  }
+  return config_data;
+}
+
+void printConfig() {
+  for (int probe = 0; probe < NUM_PROBES; probe++) {
+    struct probeConfig config_data = {};
+    config_data = getConfig(probe);
+    Serial.println("Probe " + String(probe));
+    Serial.println("\tName: " + String(config_data.probeName));
+  }
+}
+
+String getPrefNamespace(int probe){
+  return PREF_BASE_NAME + String(probe);
+
 }

@@ -34,7 +34,7 @@
 #define NUM_PROBES 4 // number of probes
 #define MAX_PROBE_NAME 10
 #define SPLASH_SCREEN_DELAY 6 * 1000
-
+#define NAME_LENGTH 10
 
 
 // get some constants out of the way
@@ -46,6 +46,8 @@ static const double BALANCE_RESISTOR = 22000.0;
 static const double BETA = 3500.0;
 static const double ROOM_TEMP = 298.15;
 static const double RESISTOR_ROOM_TEMP = 200000.0;
+
+static const String PREF_BASE_NAME = "probePref";
 
 static double lastUpdate = 0;  // tracks when the last update was made to the storage buffer
 
@@ -72,7 +74,7 @@ SemaphoreHandle_t static probeMutex = xSemaphoreCreateMutex();
 struct pinDetails {
   int thermistors[NUM_PROBES];
   int adsChannels[NUM_PROBES];
-  char probeNames[NUM_PROBES][10];
+  char probeNames[NUM_PROBES][NAME_LENGTH];
   float lastTemps[NUM_PROBES];
 };
 
@@ -89,6 +91,12 @@ static struct pinDetails pinConfig = {
 struct temperatureUpdate {
   float temperatures[NUM_PROBES];
   long updateTime;
+};
+
+
+// probe config update struct
+struct probeConfig {
+  char probeName[NAME_LENGTH];
 };
 
 //
@@ -111,8 +119,12 @@ void dumpHistory();
 void printData(int, double, double, double);
 void storeData(struct temperatureUpdate);
 void saveLastTemps(struct temperatureUpdate);
+void saveConfig(int, struct probeConfig);
+void printConfig();
+String getPrefNamespace(int);
 String getProbeDataJson(int);
 String getDataJson();
 String getLastTempsJson();
 String getTimeString(time_t);
 String zeroPad(int);
+probeConfig getConfig(int);

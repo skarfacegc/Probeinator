@@ -126,17 +126,37 @@ void setup()
   });
 
   webServer.on("/updateConfig", HTTP_POST, [](AsyncWebServerRequest *request){
+    String errors = "";
     int params = request->params();
+    struct probeConfig config_data = {};
+    int probe = -1;
+
+    // find our params
     for(int i=0;i<params;i++){
       AsyncWebParameter* p = request->getParam(i);
-      if(p->isPost()){
-        Serial.printf("POST[%s]: %s\n", p->name().c_str(), p->value().c_str());
-      } else {
-        Serial.printf("GET[%s]: %s\n", p->name().c_str(), p->value().c_str());
+      // Handle processing the name
+      if(p->name() == "probeName"){
+        if(p->value().length() > NAME_LENGTH) {
+            errors += "Name too long, not saving name";
+        } else {
+          p->value().toCharArray(config_data.probeName, NAME_LENGTH);
+        }
+      }
+      // Handle processing the probe number
+      if(p->name() == "probe") {
+        probe = p->value().toInt();
       }
     }
 
-    request->send(200, "text/plain", "Hello!");
+    // We found a probe and we don't have any errors
+    if(probe > -1 && errors.length() == 0) {
+      saveConfig(probe, config_data);
+    } else {
+      Serial.println("Bad probe id or errors when saving\n\tErrors: " + errors + String(errors.length()));
+    }
+
+    printConfig();
+    request->send(200, "text/plain", "Hello!" + errors);
   });
 
   

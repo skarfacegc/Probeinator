@@ -7,11 +7,19 @@
     <title>Document</title>
 </head>
 <body>
-    <form action="/updateConfig" method="post">
+    
         <div class="nameContainer">
-            Name: <input type="text" id="nameField" name="probeName">
-            <input type="submit">
+            <form action="/updateConfig" method="post">
+                Name0: <input type="text" id="nameField" name="probeName">
+                <input type="submit" value="Save">
+                <input type="hidden" name="probe" value="0">
+            </form>
+            <form action="/updateConfig" method="post">
+                Name1: <input type="text" id="nameField" name="probeName">
+                <input type="submit" value="Save">
+                <input type="hidden" name="probe" value="1">
+            </form>
         </div>
-    </form>
+    
 </body>
 </html>
