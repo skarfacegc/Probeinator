@@ -128,3 +128,7 @@ String getLastTempsJson();
 String getTimeString(time_t);
 String zeroPad(int);
 probeConfig getConfig(int);
+
+//
+// Web server handling prototypes
+void initWebRoutes();
