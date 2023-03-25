@@ -132,3 +132,4 @@ probeConfig getConfig(int);
 //
 // Web server handling prototypes
 void initWebRoutes();
+String savePrefData(AsyncWebServerRequest*);

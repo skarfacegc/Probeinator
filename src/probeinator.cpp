@@ -195,7 +195,7 @@ String getLastTempsJson() {
 
 
 //
-// Config and prefrences handling
+// Config and preferences handling
 //
 
 // Save the config passed in probeConfig to preferences
@@ -238,5 +238,4 @@ void printConfig() {
 // PREF_BASE_NAME + probe id (ads channel id)
 String getPrefNamespace(int probe){
   return PREF_BASE_NAME + String(probe);
-
 }

@@ -29,13 +29,21 @@ void initWebRoutes(){
 
   webServer.on("/updateConfig", HTTP_POST, [](AsyncWebServerRequest *request){
     String errors = "";
+    errors = savePrefData(request);
+    printConfig();
+    request->send(200, "text/plain", "Hello!" + errors);
+  });
+}
+
+String savePrefData(AsyncWebServerRequest *request){
+    int probe = -1;
+    String errors = "";
     int params = request->params();
     struct probeConfig config_data = {};
-    int probe = -1;
 
-    // find our params
+   // find our params
     for(int i=0;i<params;i++){
-      AsyncWebParameter* p = request->getParam(i);
+      AsyncWebParameter *p = request->getParam(i);
       // Handle processing the name
       if(p->name() == "probeName"){
         if(p->value().length() > NAME_LENGTH) {
@@ -56,8 +64,5 @@ void initWebRoutes(){
     } else {
       Serial.println("Bad probe id or errors when saving\n\tErrors: " + errors + String(errors.length()));
     }
-
-    printConfig();
-    request->send(200, "text/plain", "Hello!" + errors);
-  });
+    return errors;
 }
