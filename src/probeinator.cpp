@@ -8,10 +8,6 @@
 Preferences preferences;
 
 // Reads the voltage from the thermistor voltage divider
-// Set voltage pin to input, thermistor pin to output
-// set thermistor pin high
-// read value
-// reset pins
 double getThermistorVoltage(int ads_pin) {
   double reading_sum = 0;
   for (int i = 0; i < READING_COUNT; i++){
@@ -83,6 +79,11 @@ void printData(int channel_num, double divider_voltage, double temp_k, double re
     Serial.println();
 }
 
+
+//
+// Data handling
+//
+
 // Update temp history.  Only save data every HISTORY_INTERVAL seconds
 void storeData(struct temperatureUpdate updateStruct) {
   if(lastUpdate + HISTORY_INTERVAL <= updateStruct.updateTime) {
@@ -98,6 +99,35 @@ void storeData(struct temperatureUpdate updateStruct) {
     }
   } 
 }
+
+// store the latest temperature in the pin details struct
+void saveLastTemps(struct temperatureUpdate updateStruct){
+  if(xSemaphoreTake(probeMutex, MUTEX_W_TIMEOUT / portTICK_PERIOD_MS) == pdTRUE) {
+    for (int i = 0; i < NUM_PROBES; i++){
+        pinConfig.lastTemps[i] = updateStruct.temperatures[i];
+      }
+  } else {
+  Serial.println("!!! Couldn't get W mutex to save temps");
+  }
+  xSemaphoreGive(probeMutex);
+}
+
+
+
+// dump the contents of the history array for each probe
+void dumpHistory() {
+    Serial.println("History: ");
+    Serial.println(getDataJson());
+    Serial.println();
+    Serial.println("Free Heap: " + String(ESP.getFreeHeap()));
+    Serial.println("min free words: " + String(uxTaskGetStackHighWaterMark( NULL )));
+    Serial.println("---"); 
+    Serial.println();
+}
+
+//
+// JSON history methods
+//
 
 
 // Return the logged data as a json array
@@ -142,18 +172,6 @@ String getDataJson() {
 }
 
 
-// store the latest temperature in the pin details struct
-void saveLastTemps(struct temperatureUpdate updateStruct){
-  if(xSemaphoreTake(probeMutex, MUTEX_W_TIMEOUT / portTICK_PERIOD_MS) == pdTRUE) {
-    for (int i = 0; i < NUM_PROBES; i++){
-        pinConfig.lastTemps[i] = updateStruct.temperatures[i];
-      }
-  } else {
-  Serial.println("!!! Couldn't get W mutex to save temps");
-  }
-  xSemaphoreGive(probeMutex);
-}
-
 // returns the last recorded temperature for the given probe
 String getLastTempsJson() {
   String retString = "[";
@@ -165,9 +183,7 @@ String getLastTempsJson() {
       if(probe != NUM_PROBES-1){ // if we're not on the last probe
         retString += ", "; // we need a comma
       }
-    }
-    
-    
+    }    
   } else {
   Serial.println("!!! Couldn't get R mutex to read temps");
   }
@@ -177,17 +193,13 @@ String getLastTempsJson() {
 }
 
 
-// dump the contents of the history array for each probe
-void dumpHistory() {
-    Serial.println("History: ");
-    Serial.println(getDataJson());
-    Serial.println();
-    Serial.println("Free Heap: " + String(ESP.getFreeHeap()));
-    Serial.println("min free words: " + String(uxTaskGetStackHighWaterMark( NULL )));
-    Serial.println("---"); 
-    Serial.println();
-}
 
+//
+// Config and prefrences handling
+//
+
+// Save the config passed in probeConfig to preferences
+// creates a namespace for each probe as needed
 void saveConfig(int probe, struct probeConfig config_data){
   Serial.println("Saving " + String(probe));
   if(preferences.begin(getPrefNamespace(probe).c_str(), false)){
@@ -199,6 +211,7 @@ void saveConfig(int probe, struct probeConfig config_data){
   
 }
 
+// load the config for the specified probe
 probeConfig getConfig(int probe){
   struct probeConfig config_data = {};
   if(preferences.begin(getPrefNamespace(probe).c_str(), true)) {
@@ -210,6 +223,8 @@ probeConfig getConfig(int probe){
   return config_data;
 }
 
+
+// print the stored config data
 void printConfig() {
   for (int probe = 0; probe < NUM_PROBES; probe++) {
     struct probeConfig config_data = {};
@@ -219,6 +234,8 @@ void printConfig() {
   }
 }
 
+// returns the name for the probes namespace
+// PREF_BASE_NAME + probe id (ads channel id)
 String getPrefNamespace(int probe){
   return PREF_BASE_NAME + String(probe);
 
