@@ -159,7 +159,7 @@ String getDataJson() {
   for (int probe = 0; probe < NUM_PROBES; probe++){
     retStr += "{";
     retStr += "\"id\": \"" + String(pinConfig.adsChannels[probe]) + "\",";
-    retStr += "\"name\": \"" + String(pinConfig.probeNames[probe]) + "\",";
+    retStr += "\"name\": \"" + String((char *)(pinConfig.probeNames[probe])) + "\",";
     retStr += "\"data\": " + getProbeDataJson(probe);
     retStr += "}";
     if(probe != NUM_PROBES-1){ // if we're not on the last probe
@@ -208,7 +208,6 @@ void saveConfig(int probe, struct probeConfig config_data){
   } else {
     Serial.println("!!! Couldn't open write prefs probe: " + String(probe));
   }
-  
 }
 
 // load the config for the specified probe
@@ -231,6 +230,17 @@ void printConfig() {
     config_data = getConfig(probe);
     Serial.println("Probe " + String(probe));
     Serial.println("\tName: " + String(config_data.probeName));
+  }
+}
+
+// Update the main pin configuration with user prefs
+void applyPrefs() {
+  for (int probe = 0; probe < NUM_PROBES; probe++){
+    struct probeConfig config_data = {};
+    config_data = getConfig(probe);
+    if(String(config_data.probeName) != "") {
+      strncpy(pinConfig.probeNames[probe], (char *)config_data.probeName, NAME_LENGTH);
+    }
   }
 }
 
