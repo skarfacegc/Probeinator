@@ -29,7 +29,7 @@ void getDataTask(void* params){
       // ... and we finally figure out the temperature for that particular resistance
       double temp_k = getTempK(BETA, ROOM_TEMP, RESISTOR_ROOM_TEMP,resistance);
 
-      printData(pinConfig.adsChannels[probe], thermistorVoltage, temp_k, resistance);
+      
 
       float temp_f = kToF(temp_k);
       String temperature_display;
@@ -48,11 +48,11 @@ void getDataTask(void* params){
       updateStruct.temperatures[probe] = temp_f;
       lcd.setCursor(0,probe);  
       lcd.print(getProbeName(probe) + ": " + String(temperature_display));   
+      //printData(pinConfig.adsChannels[probe], thermistorVoltage, temp_k, resistance);
     }
     // push the current temperature into the storage FIFO
     storeData(updateStruct);
     saveLastTemps(updateStruct);
-    Serial.println();
     vTaskDelay(UPDATE_INTERVAL / portTICK_PERIOD_MS);
   }
 }
