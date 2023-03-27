@@ -8,6 +8,22 @@
         body {
             background-color: #292929;
         }
+        .header {
+            background-color:#2E3F87;
+            color: white;
+            border-radius:15px;
+            width:100%;
+        }
+        .header a:link, .header a:visited {
+            color:white;
+            text-decoration: none;
+        }
+        .settingsLink {
+            width: 50%;
+        }
+        .logo {
+            width:50%;
+        }
         .probeCard {
             background-color: white;
             border-radius: 15px;
@@ -62,6 +78,10 @@
     <title>Probeinator</title>
 </head>
 <body>
+    <div class="header">
+        <span class="logo"><a href="/">Probeinator</a></span>
+        <span class="settingsLink"><a href="/settings">Settings</a></span>
+    </div>
     <div class="tempData">
         <div id="0" class="probe0 probeCard">
             <div id="name_0" class="name">probe_0</div>

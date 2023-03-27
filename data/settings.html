@@ -5,21 +5,45 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <style>
+        body {
+            background-color: #292929;
+        }
+        .header {
+            background-color:#2E3F87;
+            color: white;
+            border-radius:15px;
+            width:100%;
+        }
+        .header a:link, .header a:visited {
+            color:white;
+            text-decoration: none;
+        }
+        .settingsLink {
+            width: 50%;
+        }
+        .logo {
+            width:50%;
+        }
+    </style>
 </head>
 <body>
-    
-        <div class="nameContainer">
-            <form action="/updateConfig" method="post">
-                Name0: <input type="text" id="nameField" name="probeName">
-                <input type="submit" value="Save">
-                <input type="hidden" name="probe" value="0">
-            </form>
-            <form action="/updateConfig" method="post">
-                Name1: <input type="text" id="nameField" name="probeName">
-                <input type="submit" value="Save">
-                <input type="hidden" name="probe" value="1">
-            </form>
-        </div>
+    <div class="header">
+        <span class="logo"><a href="/">Probeinator</a></span>
+        <span class="settingsLink"><a href="/settings">Settings</a></span>
+    </div>
+    <div class="nameContainer">
+        <form action="/updateConfig" method="post">
+            Name0: <input type="text" id="nameField" name="probeName">
+            <input type="submit" value="Save">
+            <input type="hidden" name="probe" value="0">
+        </form>
+        <form action="/updateConfig" method="post">
+            Name1: <input type="text" id="nameField" name="probeName">
+            <input type="submit" value="Save">
+            <input type="hidden" name="probe" value="1">
+        </form>
+    </div>
     
 </body>
 </html>
