@@ -35,7 +35,7 @@ void initWebRoutes(){
     errors = savePrefData(request);
     applyPrefs();
     // printConfig();
-    request->send(200, "text/plain", "Hello!" + errors);
+    request->send(SPIFFS, "/settings.html");
   });
 }
 
