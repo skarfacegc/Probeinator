@@ -164,7 +164,9 @@
 
             resultJson.forEach(probe => {
                 const tempId = "temp_" + probe.id;
+                const nameId = "name_" + probe.id;
                 document.getElementById(tempId).textContent = probe.last_temp;
+                document.getElementById(nameId).textContent = probe.name;
             });
 
             setTimeout(updateTemps, tempUpdateInterval);
@@ -181,6 +183,10 @@
                     chart.addSeries(series);
                 }
                 chart.get(series.id).setData(series.data);
+                if(chart.get(series.id).name != series.name) {
+                    chart.get(series.id).name = series.name;
+                    chart.isDirtyLegend = true;
+                }
             });
             setTimeout(updateGraph, graphUpdateInterval);
         }
