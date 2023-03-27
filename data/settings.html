@@ -8,29 +8,50 @@
     <style>
         body {
             background-color: #292929;
+            font-family:'Courier New', Courier, monospace;
         }
         .header {
+            height: 40px;
             background-color:#2E3F87;
             color: white;
             border-radius:15px;
-            width:100%;
+            width:99%;
+            padding: 2px;
+            padding-left: 10px;
+            padding-right: 10px;
+            margin-bottom: 5px;
+            display: block;   
+        }
+        .header:after {
+            clear:both;
+            visibility: hidden;
+            height: 0px;
+            content: "\00A0";
+            display:block;
         }
         .header a:link, .header a:visited {
             color:white;
             text-decoration: none;
         }
         .settingsLink {
-            width: 50%;
+            line-height: 40px;
+            vertical-align: middle;
+            font-size: 20px;
+            float:right;
+            text-align:right;
         }
         .logo {
-            width:50%;
+            line-height: 40px;
+            vertical-align: middle;
+            font-size:26px;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
     <div class="header">
-        <span class="logo"><a href="/">Probeinator</a></span>
-        <span class="settingsLink"><a href="/settings">Settings</a></span>
+        <a href="/" class="logo">Probeinator</a>
+        <a href="/settings" class="settingsLink">Settings</a>
     </div>
     <div class="nameContainer">
         <form action="/updateConfig" method="post">
