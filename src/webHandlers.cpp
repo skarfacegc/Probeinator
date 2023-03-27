@@ -7,26 +7,29 @@ void initWebRoutes(){
   webServer.begin();
   Serial.println("Setting routes");
 
-  // This is mainly just an example of reading from the built in flash
-  // will expand on this in future commits
+  // Load the main ui
   webServer.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send(SPIFFS, "/index.html");
   });
 
+  // load the settings page
   webServer.on("/settings", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send(SPIFFS, "/settings.html");
   });
 
+  // get temp history
   webServer.on("/getTemps", HTTP_GET, [](AsyncWebServerRequest *request){
       String tempData = getDataJson();
       request->send(200, "application/json", tempData);
   });
 
+  // get the most recent temps
   webServer.on("/getLastTemps", HTTP_GET, [](AsyncWebServerRequest *request){
     String tempData = getLastTempsJson();
     request->send(200, "application/json", tempData);
   });
 
+  // save the config to preferences
   webServer.on("/updateConfig", HTTP_POST, [](AsyncWebServerRequest *request){
     String errors = "";
     errors = savePrefData(request);
@@ -36,6 +39,8 @@ void initWebRoutes(){
   });
 }
 
+
+// This handles saving the preference data from the settings page
 String savePrefData(AsyncWebServerRequest *request){
     int probe = -1;
     String errors = "";
