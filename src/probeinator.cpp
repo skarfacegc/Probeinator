@@ -102,14 +102,14 @@ void storeData(struct temperatureUpdate updateStruct) {
 
 // store the latest temperature in the pin details struct
 void saveLastTemps(struct temperatureUpdate updateStruct){
-  if(xSemaphoreTake(probeMutex, MUTEX_W_TIMEOUT / portTICK_PERIOD_MS) == pdTRUE) {
+  if(xSemaphoreTake(probeLastTempMutex, MUTEX_W_TIMEOUT / portTICK_PERIOD_MS) == pdTRUE) {
     for (int i = 0; i < NUM_PROBES; i++){
         pinConfig.lastTemps[i] = updateStruct.temperatures[i];
       }
   } else {
   Serial.println("!!! Couldn't get W mutex to save temps");
   }
-  xSemaphoreGive(probeMutex);
+  xSemaphoreGive(probeLastTempMutex);
 }
 
 
@@ -175,7 +175,7 @@ String getDataJson() {
 // returns the last recorded temperature for the given probe
 String getLastTempsJson() {
   String retString = "[";
-  if(xSemaphoreTake(probeMutex, MUTEX_W_TIMEOUT / portTICK_PERIOD_MS) == pdTRUE) {
+  if(xSemaphoreTake(probeLastTempMutex, MUTEX_W_TIMEOUT / portTICK_PERIOD_MS) == pdTRUE) {
     for(int probe=0; probe < NUM_PROBES;probe++){
       retString += "{\"id\": \"" + String(pinConfig.adsChannels[probe]) + "\", ";
       retString += "\"name\": \"" + String(pinConfig.probeNames[probe]) + "\", ";
@@ -187,12 +187,10 @@ String getLastTempsJson() {
   } else {
   Serial.println("!!! Couldn't get R mutex to read temps");
   }
-  xSemaphoreGive(probeMutex);
+  xSemaphoreGive(probeLastTempMutex);
   retString += "]";
   return retString;
 }
-
-
 
 //
 // Config and preferences handling
@@ -200,7 +198,7 @@ String getLastTempsJson() {
 
 // Save the config passed in probeConfig to preferences
 // creates a namespace for each probe as needed
-void saveConfig(int probe, struct probeConfig config_data){
+void savePrefs(int probe, struct probeConfig config_data){
   Serial.println("Saving " + String(probe));
   if(preferences.begin(getPrefNamespace(probe).c_str(), false)){
     preferences.putBytes("probeName", config_data.probeName, NAME_LENGTH);
@@ -211,10 +209,12 @@ void saveConfig(int probe, struct probeConfig config_data){
 }
 
 // load the config for the specified probe
-probeConfig getConfig(int probe){
+probeConfig getPrefs(int probe){
   struct probeConfig config_data = {};
   if(preferences.begin(getPrefNamespace(probe).c_str(), true)) {
-    preferences.getBytes("probeName", &config_data.probeName, NAME_LENGTH);
+    if(preferences.isKey("probeName")){
+      preferences.getBytes("probeName", &config_data.probeName, NAME_LENGTH);
+    }
     preferences.end();
   } else {
     Serial.println("!!! Failed to get config for probe: " + String(probe));
@@ -222,14 +222,17 @@ probeConfig getConfig(int probe){
   return config_data;
 }
 
+String getProbeName(int probe) {
+  return String(pinConfig.probeNames[probe]);
+}
 
 // print the stored config data
 void printConfig() {
   for (int probe = 0; probe < NUM_PROBES; probe++) {
-    struct probeConfig config_data = {};
-    config_data = getConfig(probe);
     Serial.println("Probe " + String(probe));
-    Serial.println("\tName: " + String(config_data.probeName));
+    Serial.println("\tName: " + String(pinConfig.probeNames[probe]));
+    Serial.println("\tADS Channel: " + String(pinConfig.adsChannels[probe]));
+    Serial.println("\tLast Temp: " + String(pinConfig.lastTemps[probe]));
   }
 }
 
@@ -237,7 +240,7 @@ void printConfig() {
 void applyPrefs() {
   for (int probe = 0; probe < NUM_PROBES; probe++){
     struct probeConfig config_data = {};
-    config_data = getConfig(probe);
+    config_data = getPrefs(probe);
     if(String(config_data.probeName) != "") {
       strncpy(pinConfig.probeNames[probe], (char *)config_data.probeName, NAME_LENGTH);
     }

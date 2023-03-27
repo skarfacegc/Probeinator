@@ -23,13 +23,13 @@ void getDataTask(void* params){
     // loop through the probes and ...  
     for (int probe = 0; probe < NUM_PROBES; probe++) {
       // ... get the voltage from the sensor on the thermistor's divider and ...
-      double thermistorVoltage = getThermistorVoltage(pin_config->adsChannels[probe]);
+      double thermistorVoltage = getThermistorVoltage(pinConfig.adsChannels[probe]);
       // ... figure out the resistance of the thermistor then ...
       double resistance = getResistance(BALANCE_RESISTOR, Vref, thermistorVoltage);
       // ... and we finally figure out the temperature for that particular resistance
       double temp_k = getTempK(BETA, ROOM_TEMP, RESISTOR_ROOM_TEMP,resistance);
 
-      printData(pin_config->adsChannels[probe], thermistorVoltage, temp_k, resistance);
+      printData(pinConfig.adsChannels[probe], thermistorVoltage, temp_k, resistance);
 
       float temp_f = kToF(temp_k);
       String temperature_display;
@@ -47,7 +47,7 @@ void getDataTask(void* params){
       // set the temp in the update struct and update the LCD
       updateStruct.temperatures[probe] = temp_f;
       lcd.setCursor(0,probe);  
-      lcd.print(String(pin_config->probeNames[probe]) + ": " + String(temperature_display));   
+      lcd.print(getProbeName(probe) + ": " + String(temperature_display));   
     }
     // push the current temperature into the storage FIFO
     storeData(updateStruct);
@@ -102,11 +102,15 @@ void setup()
     return;
   }
 
-  // Start the webserver
+  // Start the web server
   initWebRoutes();
 
   // print the start config
   printConfig();
+  applyPrefs();
+  Serial.println("\nLoading Prefs\n");
+  printConfig();
+  
 
   // Show the splash screen
   lcd.setCursor(0,0);

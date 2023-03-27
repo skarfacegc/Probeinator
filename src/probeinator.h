@@ -66,13 +66,13 @@ Timezone static myTZ(myDST, mySTD);
 
 // Read/write mutex on the history array
 SemaphoreHandle_t static historyMutex = xSemaphoreCreateMutex();
-SemaphoreHandle_t static probeMutex = xSemaphoreCreateMutex();
+SemaphoreHandle_t static probeLastTempMutex = xSemaphoreCreateMutex();
+SemaphoreHandle_t static probeNameMutex = xSemaphoreCreateMutex();
 
 
 // Setup our thermistor pins and the corresponding ads channels
 // just mapped using array indexes.
 struct pinDetails {
-  int thermistors[NUM_PROBES];
   int adsChannels[NUM_PROBES];
   char probeNames[NUM_PROBES][NAME_LENGTH];
   float lastTemps[NUM_PROBES];
@@ -81,9 +81,8 @@ struct pinDetails {
 // NOTE: Code assumes that the first thermistor and the voltage pin are connected to the 
 // first ads channel.  Default: GPIO_NUM_19, and GPIO_NUM_25 are connected to ads channel 0
 static struct pinDetails pinConfig = {
-  {GPIO_NUM_19, GPIO_NUM_18, GPIO_NUM_17, GPIO_NUM_16}, // List of GPIO pins
-  {0,1,2,3}, // ... and their corresponding ADS1115 channels
-  {"probe_0","probe_1","probe_2","probe_3"}, // ... and their names
+  {0,1,2,3}, // Set the ads channels, this also serves as a loose probe id
+  {"probe_0","probe_1","probe_2","probe_3"}, // ... and their default names
   {nanf(""),nanf(""),nanf(""),nanf("")}
 };
 
@@ -119,7 +118,7 @@ void dumpHistory();
 void printData(int, double, double, double);
 void storeData(struct temperatureUpdate);
 void saveLastTemps(struct temperatureUpdate);
-void saveConfig(int, struct probeConfig);
+void savePrefs(int, struct probeConfig);
 void printConfig();
 String getPrefNamespace(int);
 String getProbeDataJson(int);
@@ -127,9 +126,11 @@ String getDataJson();
 String getLastTempsJson();
 String getTimeString(time_t);
 String zeroPad(int);
-probeConfig getConfig(int);
+String getProbeName(int probe);
+probeConfig getPrefs(int);
 
 //
 // Web server handling prototypes
 void initWebRoutes();
 String savePrefData(AsyncWebServerRequest*);
+void applyPrefs();
