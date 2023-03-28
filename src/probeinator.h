@@ -120,6 +120,7 @@ void storeData(struct temperatureUpdate);
 void saveLastTemps(struct temperatureUpdate);
 void savePrefs(int, struct probeConfig);
 void printConfig();
+void clearPrefs();
 String getPrefNamespace(int);
 String getProbeDataJson(int);
 String getDataJson();

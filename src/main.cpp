@@ -61,9 +61,7 @@ void getDataTask(void* params){
 void setup() 
 {
   Serial.begin(115200);
-  Serial.println(__FILE__);
-  Serial.print("ADS1X15_LIB_VERSION: ");
-  Serial.println(ADS1X15_LIB_VERSION);
+  Serial.println("loading probeinator .....");
 
   //
   // Setup WiFi
@@ -106,10 +104,7 @@ void setup()
   initWebRoutes();
 
   // print the start config
-  printConfig();
   applyPrefs();
-  Serial.println("\nLoading Prefs\n");
-  printConfig();
   
 
   // Show the splash screen
@@ -140,6 +135,8 @@ void setup()
     24,
     &xHandle
   );
+
+  Serial.println("... probeinator loaded");
 }
 
 

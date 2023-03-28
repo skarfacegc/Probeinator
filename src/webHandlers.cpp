@@ -29,6 +29,11 @@ void initWebRoutes(){
     request->send(200, "application/json", tempData);
   });
 
+  webServer.on("/clearPrefs", HTTP_GET, [](AsyncWebServerRequest *request){
+    clearPrefs();
+    request->send(SPIFFS, "/settings.html");
+  });
+
   // save the config to preferences
   webServer.on("/updateConfig", HTTP_POST, [](AsyncWebServerRequest *request){
     String errors = "";

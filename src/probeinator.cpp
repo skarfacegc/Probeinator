@@ -199,7 +199,6 @@ String getLastTempsJson() {
 // Save the config passed in probeConfig to preferences
 // creates a namespace for each probe as needed
 void savePrefs(int probe, struct probeConfig config_data){
-  Serial.println("Saving " + String(probe));
   if(preferences.begin(getPrefNamespace(probe).c_str(), false)){
     preferences.putBytes("probeName", config_data.probeName, NAME_LENGTH);
     preferences.end();
@@ -241,10 +240,28 @@ void applyPrefs() {
   for (int probe = 0; probe < NUM_PROBES; probe++){
     struct probeConfig config_data = {};
     config_data = getPrefs(probe);
-    if(String(config_data.probeName) != "") {
+
+    // Set the probe name
+    if(strlen(config_data.probeName) > 0 && strlen(config_data.probeName) <= NAME_LENGTH) {
       strncpy(pinConfig.probeNames[probe], (char *)config_data.probeName, NAME_LENGTH);
+    } else {
+      // restore the default value
+      String tmpName = "probe_" + String(probe);
+      strncpy(pinConfig.probeNames[probe], tmpName.c_str(), NAME_LENGTH);
     }
   }
+}
+
+// Clears all of the saved probe prefs and restores pinConfig to default
+void clearPrefs() {
+  for (int probe = 0; probe < NUM_PROBES; probe++) {
+    if(preferences.begin(getPrefNamespace(probe).c_str(), false)) {
+      preferences.clear();
+      preferences.end();
+    }
+  }
+  // Reset back to defaults
+  applyPrefs();
 }
 
 // returns the name for the probes namespace
