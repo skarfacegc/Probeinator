@@ -192,6 +192,15 @@ String getLastTempsJson() {
   return retString;
 }
 
+// Fill out the the line on the LCD with spaces (clears the remainder of the line)
+String lcdLineClear(int length) {
+  String spaces = "";
+  for (int i = 0; i < 20-length; i++){
+    spaces += " ";
+  }
+  return spaces;
+}
+
 //
 // Config and preferences handling
 //

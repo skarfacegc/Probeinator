@@ -16,6 +16,7 @@ void getDataTask(void* params){
   while(1) {
     double Vref = INPUT_VOLTAGE;
     struct temperatureUpdate updateStruct;
+    String lcdLine;
 
     // Set the update time
     updateStruct.updateTime = timeClient.getEpochTime();
@@ -46,8 +47,10 @@ void getDataTask(void* params){
       
       // set the temp in the update struct and update the LCD
       updateStruct.temperatures[probe] = temp_f;
-      lcd.setCursor(0,probe);  
-      lcd.print(getProbeName(probe) + ": " + String(temperature_display));   
+      lcd.setCursor(0,probe);
+      lcdLine = getProbeName(probe) + ": " + String(temperature_display);
+      lcd.print(lcdLine);
+      lcd.print(lcdLineClear(lcdLine.length())); // clear the rest of the line
       //printData(pinConfig.adsChannels[probe], thermistorVoltage, temp_k, resistance);
     }
     // push the current temperature into the storage FIFO

@@ -127,6 +127,7 @@ String getDataJson();
 String getLastTempsJson();
 String getTimeString(time_t);
 String zeroPad(int);
+String lcdLineClear(int);
 String getProbeName(int probe);
 probeConfig getPrefs(int);
 
