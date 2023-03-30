@@ -22,17 +22,29 @@
             margin-bottom: 5px;
             display: block;   
         }
-        .header:after {
+        .header:after,
+        .clearPrefs:after {
             clear:both;
             visibility: hidden;
             height: 0px;
             content: "\00A0";
             display:block;
         }
-        .header a:link, .header a:visited {
-            color:white;
+        .nameContainer a:link, 
+        .nameContainer a:visited, 
+        .header a:link, 
+        .header a:visited {
             text-decoration: none;
         }
+        .header a:link, 
+        .header a:visited {
+            color:white;
+        }
+        .nameContainer a:link, 
+        .nameContainer a:visited {
+            color: black;
+        }
+
         .settingsLink {
             line-height: 40px;
             vertical-align: middle;
@@ -45,6 +57,25 @@
             vertical-align: middle;
             font-size:26px;
             font-weight: bold;
+        }
+        .nameContainer {
+            background-color: white;
+            border-radius: 15px;
+            padding: 10px;
+        }
+        .clearPrefs {
+            position:relative;
+            top: -1em;
+            float:right;
+            text-align:right;
+            padding-top:5px;
+        }
+        .clearPrefs:after {
+            clear:both;
+            visibility: hidden;
+            height: 0px;
+            content: "\00A0";
+            display:block;
         }
     </style>
 </head>
@@ -64,6 +95,10 @@
             <input type="submit" value="Save">
             <input type="hidden" name="probe" value="1">
         </form>
+        
+        <div class="clearPrefs">
+            <a href="/clearPrefs" >Reset to Default Settings</a>
+        </div>
     </div>
     
 </body>
