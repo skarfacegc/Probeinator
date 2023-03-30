@@ -30,8 +30,8 @@
             content: "\00A0";
             display:block;
         }
-        .nameContainer a:link, 
-        .nameContainer a:visited, 
+        .formContainer a:link, 
+        .formContainer a:visited, 
         .header a:link, 
         .header a:visited {
             text-decoration: none;
@@ -40,8 +40,8 @@
         .header a:visited {
             color:white;
         }
-        .nameContainer a:link, 
-        .nameContainer a:visited {
+        .formContainer a:link, 
+        .formContainer a:visited {
             color: black;
         }
 
@@ -58,7 +58,7 @@
             font-size:26px;
             font-weight: bold;
         }
-        .nameContainer {
+        .formContainer {
             background-color: white;
             border-radius: 15px;
             padding: 10px;
@@ -77,6 +77,16 @@
             content: "\00A0";
             display:block;
         }
+        .probeForm{
+            padding-top: 15px;
+            padding-bottom: 15px;
+            font-size:x-large
+        }
+        .inputField {
+            border: 1px solid black;
+            border-radius: 4px;
+            font-size:x-large
+        }
     </style>
 </head>
 <body>
@@ -84,15 +94,22 @@
         <a href="/" class="logo">Probeinator</a>
         <a href="/settings" class="settingsLink">Settings</a>
     </div>
-    <div class="nameContainer">
-        <form action="/updateConfig" method="post">
-            Name0: <input type="text" id="nameField" name="probeName">
-            <input type="submit" value="Save">
+    <div class="formContainer">
+        <form class="probeForm" action="/updateConfig" method="post">
+            <b>Probe 0</b>
+            <br>
+            Name <input type="text" class="inputField" id="nameField" name="probeName">
+            <br>
+            <input class="submitButton" type="submit" value="Save">
             <input type="hidden" name="probe" value="0">
         </form>
-        <form action="/updateConfig" method="post">
-            Name1: <input type="text" id="nameField" name="probeName">
-            <input type="submit" value="Save">
+
+        <form class="probeForm" action="/updateConfig" method="post">
+            <b>Probe 1</b>
+            <br>
+            Name <input type="text" class="inputField" id="nameField" name="probeName">
+            <br>
+            <input class="submitButton" type="submit" value="Save">
             <input type="hidden" name="probe" value="1">
         </form>
         
