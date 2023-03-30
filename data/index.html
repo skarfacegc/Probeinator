@@ -198,36 +198,49 @@
 
         // update the temp cards
         async function updateTemps() {
-            const result = await fetch('/getLastTemps');
-            const resultJson = await result.json();
+            try {
+                const result = await fetch('/getLastTemps');
+                const resultJson = await result.json();
 
-            resultJson.forEach(probe => {
-                const tempId = "temp_" + probe.id;
-                const nameId = "name_" + probe.id;
-                document.getElementById(tempId).textContent = probe.last_temp;
-                document.getElementById(nameId).textContent = probe.name;
-            });
-
-            setTimeout(updateTemps, tempUpdateInterval);
+                resultJson.forEach(probe => {
+                    const tempId = "temp_" + probe.id;
+                    const nameId = "name_" + probe.id;
+                    document.getElementById(tempId).textContent = probe.last_temp;
+                    document.getElementById(nameId).textContent = probe.name;
+                });
+            } 
+            catch {
+                console.warn("Failed to get temp update");
+            }
+            finally{
+                setTimeout(updateTemps, tempUpdateInterval);
+            }            
         }
 
 
         // Update data every refresh interval
         async function updateGraph() {
-            const result = await fetch('/getTemps');
-            const resultJson = await result.json();
+            try {
+                const result = await fetch('/getTemps');
+                const resultJson = await result.json();
 
-            resultJson.forEach(series => {
-                if(!chart.get(series.id)) {
-                    chart.addSeries(series);
-                }
-                chart.get(series.id).setData(series.data);
-                if(chart.get(series.id).name != series.name) {
-                    chart.get(series.id).name = series.name;
-                    chart.isDirtyLegend = true;
-                }
-            });
-            setTimeout(updateGraph, graphUpdateInterval);
+                resultJson.forEach(series => {
+                    if(!chart.get(series.id)) {
+                        chart.addSeries(series);
+                    }
+                    chart.get(series.id).setData(series.data);
+                    if(chart.get(series.id).name != series.name) {
+                        chart.get(series.id).name = series.name;
+                        chart.isDirtyLegend = true;
+                    }
+                });
+            }
+            catch {
+                console.warn("Failed to get data to update graph");
+            }
+            finally {
+                setTimeout(updateGraph, graphUpdateInterval);
+            }
         }
     </script>
 
