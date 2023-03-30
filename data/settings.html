@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body {
+            background-color: #292929;
+            font-family:'Courier New', Courier, monospace;
+        }
+        .header {
+            height: 40px;
+            background-color:#2E3F87;
+            color: white;
+            border-radius:15px;
+            width:99%;
+            padding: 2px;
+            padding-left: 10px;
+            padding-right: 10px;
+            margin-bottom: 5px;
+            display: block;   
+        }
+        .header:after,
+        .clearPrefs:after {
+            clear:both;
+            visibility: hidden;
+            height: 0px;
+            content: "\00A0";
+            display:block;
+        }
+        .formContainer a:link, 
+        .formContainer a:visited, 
+        .header a:link, 
+        .header a:visited {
+            text-decoration: none;
+        }
+        .header a:link, 
+        .header a:visited {
+            color:white;
+        }
+        .formContainer a:link, 
+        .formContainer a:visited {
+            color: black;
+        }
+
+        .settingsLink {
+            line-height: 40px;
+            vertical-align: middle;
+            font-size: 20px;
+            float:right;
+            text-align:right;
+        }
+        .logo {
+            line-height: 40px;
+            vertical-align: middle;
+            font-size:26px;
+            font-weight: bold;
+        }
+        .formContainer {
+            background-color: white;
+            border-radius: 15px;
+            padding: 10px;
+        }
+        .clearPrefs {
+            position:relative;
+            top: -1em;
+            float:right;
+            text-align:right;
+            padding-top:5px;
+        }
+        .clearPrefs:after {
+            clear:both;
+            visibility: hidden;
+            height: 0px;
+            content: "\00A0";
+            display:block;
+        }
+        .probeForm{
+            padding-top: 20px;
+            padding-bottom: 20px;
+            font-size:x-large
+        }
+        .inputField {
+            border: 1px solid black;
+            border-radius: 4px;
+            font-size:x-large;
+            font-family:'Courier New', Courier, monospace;
+        }
+        .submitButton {
+            font-size:large;
+            font-weight:normal;
+            background: none;
+            box-shadow: none;
+            border: 1px solid darkgray;
+            border-radius:5px;
+            margin-left: 5px;
+            margin-bottom: 6px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="/" class="logo">Probeinator</a>
+        <a href="/settings" class="settingsLink">Settings</a>
+    </div>
+    <div class="formContainer">
+        <form class="probeForm" action="/updateConfig" method="post">
+            <b>Probe 0</b> <input class="submitButton" type="submit" value="Save">
+            <br>
+            Name <input type="text" class="inputField" id="nameField" name="probeName">
+            <input type="hidden" name="probe" value="0">
+        </form>
+
+        <form class="probeForm" action="/updateConfig" method="post">
+            <b>Probe 1</b> <input class="submitButton" type="submit" value="Save">
+            <br>
+            Name <input type="text" class="inputField" id="nameField" name="probeName">
+            <br>
+            <input type="hidden" name="probe" value="1">
+        </form>
+        
+        <div class="clearPrefs">
+            <a href="/clearPrefs" >Reset to Default Settings</a>
+        </div>
+    </div>
+    
+</body>
+</html>

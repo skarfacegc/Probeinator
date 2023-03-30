@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            background-color: #292929;
+            font-family:'Courier New', Courier, monospace;
+        }
+        .header {
+            height: 40px;
+            background-color:#2E3F87;
+            color: white;
+            border-radius:15px;
+            width:99%;
+            padding: 2px;
+            padding-left: 10px;
+            padding-right: 10px;
+            margin-bottom: 5px;
+            display: block;   
+        }
+        .header:after {
+            clear:both;
+            visibility: hidden;
+            height: 0px;
+            content: "\00A0";
+            display:block;
+        }
+        .header a:link, .header a:visited {
+            color:white;
+            text-decoration: none;
+        }
+        .settingsLink {
+            line-height: 40px;
+            vertical-align: middle;
+            font-size: 20px;
+            float:right;
+            text-align:right;
+        }
+        .logo {
+            line-height: 40px;
+            vertical-align: middle;
+            font-size:26px;
+            font-weight: bold;
+        }
+        .probeCard {
+            background-color: white;
+            border-radius: 15px;
+            padding: 5px;
+            display: flex;
+            flex-direction:column;
+            align-items: center;
+        }
+        .name {
+            padding-left: 5px;
+        }
+        .temp {
+            font-size: 24px;
+            padding-top: 1em;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .tempData {
+                    display: grid;
+                    font-size: 22px;
+                    grid-template-columns: 11ch auto;
+                    grid-template-rows: repeat(4, 1fr);
+                    grid-column-gap: 4px;
+                    grid-row-gap: 2px;
+                }
+        .probe0 { 
+            grid-area: 1 / 1 / 2 / 2;
+            background-color: #CA602D;
+            color: white;
+        }
+        .probe1 { 
+            grid-area: 2 / 1 / 3 / 2;
+            background-color: #669C6C;
+            color: white;
+        }
+        .probe2 { 
+            grid-area: 3 / 1 / 4 / 2;
+            background-color: #2A7A95;
+            color: white;
+        }
+        .probe3 { 
+            grid-area: 4 / 1 / 5 / 2;
+            background-color: #2E3F87;
+            color: white;
+        }
+        .containerGrid { grid-area: 1 / 2 / 5 / 3;}
+    </style>
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <title>Probeinator</title>
+</head>
+<body>
+    <div class="header">
+        <a href="/" class="logo">Probeinator</a>
+        <a href="/settings" class="settingsLink">Settings</a>
+    </div>
+    <div class="tempData">
+        <div id="0" class="probe0 probeCard">
+            <div id="name_0" class="name">probe_0</div>
+            <div id="temp_0" class="temp"></div>
+        </div>
+        <div id="1" class="probe1 probeCard">
+            <div id="name_1" class="name">probe_1</div>
+            <div id="temp_1" class="temp"></div>
+        </div>
+        <div id="2" class="probe2 probeCard">
+            <div id="name_2" class="name">probe_2</div>
+            <div id="temp_2" class="temp"></div>
+        </div>
+        <div id="3" class="probe3 probeCard">
+            <div id="name_3" class="name">probe_3</div>
+            <div id="temp_3" class="temp"></div>
+        </div>
+        <div id="chartContainer" class="containerGrid charts" style="width:100%; height:500px;"></div>
+    </div>
+    
+
+    <script type="text/javascript">
+        const tempUpdateInterval = 5000; // 5 seconds
+        const graphUpdateInterval = 120000; // two minutes
+        window.onload = function() {
+            updateTemps();
+        };
+
+        Highcharts.setOptions({
+            colors: ['#CA602D', '#669C6C', '#2A7A95', '#2E3F87', '#725A44', '#00b7c7', '#5ad45a', '#8be04e', '#ebdc78'],
+            chart: {
+                style: {
+                    fontFamily: '\"Courier New\"", Courier, monospace'
+                }
+            }
+        });
+
+        const chart = Highcharts.chart('chartContainer', {
+            chart: {
+                type: 'spline',
+                borderRadius: 15,
+                events: {
+                    load: updateGraph
+                },
+                
+            },
+
+            plotOptions: {
+                series: {
+                    marker: {
+                        enabled: false,
+                    }
+                }
+            },
+            title: {
+                text: undefined
+            },
+            credits: {
+                position: {
+                    verticalAlign: 'top',
+                }
+            },
+            legend: {
+                layout: 'horizontal',
+                floating: false,
+                align: 'left',
+                verticalAlign: 'top',
+                squareSymbol: true,
+                x: 30,
+                y: 0,
+            },
+            yAxis: {
+                tickInterval: 5,
+                minorTickInterval: 1,
+                minRange: 10,
+                title: {
+                    text: 'Temp'
+                },
+                plotOptions: {
+                    series: {
+                        lineWidth: 4
+                    }
+                },                
+            },
+            xAxis: {
+                type: 'datetime',
+                minRange: 180 * 1000,
+                minTickInterval: 60 * 1000,
+                labels: {
+                    rotation: 90
+                }
+            }
+        });
+
+
+        // update the temp cards
+        async function updateTemps() {
+            try {
+                const result = await fetch('/getLastTemps');
+                const resultJson = await result.json();
+
+                resultJson.forEach(probe => {
+                    const tempId = "temp_" + probe.id;
+                    const nameId = "name_" + probe.id;
+                    document.getElementById(tempId).textContent = probe.last_temp;
+                    document.getElementById(nameId).textContent = probe.name;
+                });
+            } 
+            catch {
+                console.warn("Failed to get temp update");
+            }
+            finally{
+                setTimeout(updateTemps, tempUpdateInterval);
+            }            
+        }
+
+
+        // Update data every refresh interval
+        async function updateGraph() {
+            try {
+                const result = await fetch('/getTemps');
+                const resultJson = await result.json();
+
+                resultJson.forEach(series => {
+                    if(!chart.get(series.id)) {
+                        chart.addSeries(series);
+                    }
+                    chart.get(series.id).setData(series.data);
+                    if(chart.get(series.id).name != series.name) {
+                        chart.get(series.id).name = series.name;
+                        chart.isDirtyLegend = true;
+                    }
+                });
+            }
+            catch {
+                console.warn("Failed to get data to update graph");
+            }
+            finally {
+                setTimeout(updateGraph, graphUpdateInterval);
+            }
+        }
+    </script>
+
+</body>
+</html>
