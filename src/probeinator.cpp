@@ -26,10 +26,19 @@ double getTempK(double BETA, double ROOM_TEMP, double RESISTOR_ROOM_TEMP, double
 }
 
 // Figure out the thermistor resistance from the voltage coming out of the divider
-double getResistance(double BALANCE_RESISTOR, double VOLTAGE, double resistance) {
-  return (resistance * BALANCE_RESISTOR) / (VOLTAGE - resistance);
+double getResistance(double BALANCE_RESISTOR, double VOLTAGE, double thermistorVoltage) {
+  return (thermistorVoltage * BALANCE_RESISTOR) / (VOLTAGE - thermistorVoltage);
 }
 
+// true if a probe is connected
+bool isConnected(int probe){
+  double resistance = getResistance(BALANCE_RESISTOR, INPUT_VOLTAGE, getThermistorVoltage(pinConfig.adsChannels[probe])); 
+  if(resistance > 10000) { // if our resistance is very low, assume the probe is disconnected
+    return true;
+  } else {
+    return false;
+  }
+}
 
 // Temperature conversion
 double kToC(double temp_k) {

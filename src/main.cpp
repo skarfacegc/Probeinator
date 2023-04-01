@@ -37,7 +37,7 @@ void getDataTask(void* params){
 
       // If resistance is low, assume there's no probe
       // Set some values and the string to display on the lcd
-      if(resistance < 10000) {
+      if(!isConnected(pinConfig.adsChannels[probe])) {
         temp_f = 0;
         temperature_display = "--  "; // spaces here are to ensure we overwrite the F when the prev val was 111F
       }
@@ -56,7 +56,7 @@ void getDataTask(void* params){
     // push the current temperature into the storage FIFO
     storeData(updateStruct);
     saveLastTemps(updateStruct);
-    vTaskDelay(UPDATE_INTERVAL / portTICK_PERIOD_MS);
+    vTaskDelay(MAIN_LOOP_INTERVAL / portTICK_PERIOD_MS);
   }
 }
 
@@ -146,7 +146,7 @@ void setup()
 void loop() 
 {  
   timeClient.update();
-  vTaskDelay(UPDATE_INTERVAL / portTICK_PERIOD_MS);
+  vTaskDelay(MAIN_LOOP_INTERVAL / portTICK_PERIOD_MS);
 }
 
 

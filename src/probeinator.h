@@ -24,7 +24,7 @@
 #include "secrets.h" // needs to provide WIFI_NAME / WIFI_PW you need to create this
 
 
-#define UPDATE_INTERVAL 1000 // how often to collect data (ms)
+#define MAIN_LOOP_INTERVAL 1000 // this is the main loop timer, doesn't control much.
 #define HISTORY_INTERVAL 120// how often to update history samples (SECONDS!)
 #define HISTORY_SIZE 720 
 #define MUTEX_W_TIMEOUT 200
@@ -108,6 +108,7 @@ static CircularBuffer<float,HISTORY_SIZE> temperatureHistories[NUM_PROBES];
 static CircularBuffer<int,HISTORY_SIZE> temperatureHistoryTimes;
 
 // Prototypes
+bool isConnected(int);
 double getThermistorVoltage(int);
 double getTempK(double, double, double, double);
 double getResistance(double, double, double);
