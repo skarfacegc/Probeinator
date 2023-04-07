@@ -217,13 +217,35 @@
             }            
         }
 
+        function nameMatch(probeData){
+            console.log(JSON.stringify(probeData));
+            return true;
+        }
 
         // Update data every refresh interval
         async function updateGraph() {
             try {
                 const result = await fetch('/getTemps');
                 const resultJson = await result.json();
+                console.log("here");
+                console.log(chart.series.length);
 
+
+                
+                // delete graphs when a probe is removed
+                // Loop through the defined charts and make sure we have a matching value from 
+                // the resultJson structure
+                for(i=0; i<chart.series.length; i++){
+                    // if we didn't find 
+                    if(resultJson.find(nameMatch)){
+                        console.log("Found " + chart.series[i].name + " in tempData");
+                    } else {
+                        console.log("Couldn't find " + name + " in tempData");
+                    }
+                }
+
+                // loop through the probe data, add new series 
+                // if needed and update the data arrays
                 resultJson.forEach(series => {
                     if(!chart.get(series.id)) {
                         chart.addSeries(series);
@@ -235,8 +257,8 @@
                     }
                 });
             }
-            catch {
-                console.warn("Failed to get data to update graph");
+            catch(e) {
+                console.warn("Failed to get data to update graph: " + e);
             }
             finally {
                 setTimeout(updateGraph, graphUpdateInterval);

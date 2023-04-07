@@ -11,7 +11,13 @@ Preferences preferences;
 double getThermistorVoltage(int ads_pin) {
   double reading_sum = 0;
   for (int i = 0; i < READING_COUNT; i++){
-    reading_sum = reading_sum + ADS.readADC(ads_pin);
+    if(xSemaphoreTake(thermistorReadMutex, PROBE_READ_DELAY)){
+      reading_sum = reading_sum + ADS.readADC(ads_pin);
+    } else {
+      Serial.println("Failed to get mutex for thermistor read");
+    }
+    
+    xSemaphoreGive(thermistorReadMutex);
     vTaskDelay(PROBE_READ_DELAY * portTICK_PERIOD_MS);
   }
   return ADS.toVoltage(reading_sum / READING_COUNT);
@@ -32,12 +38,7 @@ double getResistance(double BALANCE_RESISTOR, double VOLTAGE, double thermistorV
 
 // true if a probe is connected
 bool isConnected(int probe){
-  double resistance = getResistance(BALANCE_RESISTOR, INPUT_VOLTAGE, getThermistorVoltage(pinConfig.adsChannels[probe])); 
-  if(resistance > 10000) { // if our resistance is very low, assume the probe is disconnected
-    return true;
-  } else {
-    return false;
-  }
+  return pinConfig.connected[probe];
 }
 
 // Temperature conversion
@@ -114,6 +115,7 @@ void saveLastTemps(struct temperatureUpdate updateStruct){
   if(xSemaphoreTake(probeLastTempMutex, MUTEX_W_TIMEOUT / portTICK_PERIOD_MS) == pdTRUE) {
     for (int i = 0; i < NUM_PROBES; i++){
         pinConfig.lastTemps[i] = updateStruct.temperatures[i];
+        pinConfig.connected[i] = updateStruct.connected[i];
       }
   } else {
   Serial.println("!!! Couldn't get W mutex to save temps");
@@ -165,15 +167,23 @@ String getProbeDataJson(int probe) {
 // Get all of the probe data for use in the UI
 String getDataJson() {
   String retStr = "[";
+  
   for (int probe = 0; probe < NUM_PROBES; probe++){
+    // Skip this one if the probe isn't connected
+    if(!isConnected(probe)){
+      continue;
+    }
+
+    // if we're not the first probe, add a comma
+    // to continue the list
+    if(probe != 0) {
+      retStr += ", ";
+    }
     retStr += "{";
     retStr += "\"id\": \"" + String(pinConfig.adsChannels[probe]) + "\",";
     retStr += "\"name\": \"" + String((char *)(pinConfig.probeNames[probe])) + "\",";
     retStr += "\"data\": " + getProbeDataJson(probe);
     retStr += "}";
-    if(probe != NUM_PROBES-1){ // if we're not on the last probe
-      retStr += ", "; // we need a comma
-    } 
   }
   retStr += "]";
 
@@ -181,17 +191,25 @@ String getDataJson() {
 }
 
 
-// returns the last recorded temperature for the given probe
+// returns the last recorded temperatures for connected probes
 String getLastTempsJson() {
   String retString = "[";
   if(xSemaphoreTake(probeLastTempMutex, MUTEX_W_TIMEOUT / portTICK_PERIOD_MS) == pdTRUE) {
     for(int probe=0; probe < NUM_PROBES;probe++){
+      // Skip this one if the probe isn't connected
+      if(!isConnected(probe)){
+        continue;
+      }
+
+      // if we're not the first probe, add a comma
+      // to continue the list
+      if(probe != 0) {
+        retString += ", ";
+      }
+
       retString += "{\"id\": \"" + String(pinConfig.adsChannels[probe]) + "\", ";
       retString += "\"name\": \"" + String(pinConfig.probeNames[probe]) + "\", ";
       retString += "\"last_temp\": " + String(pinConfig.lastTemps[probe]) + "}"; 
-      if(probe != NUM_PROBES-1){ // if we're not on the last probe
-        retString += ", "; // we need a comma
-      }
     }    
   } else {
   Serial.println("!!! Couldn't get R mutex to read temps");

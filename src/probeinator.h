@@ -68,6 +68,7 @@ Timezone static myTZ(myDST, mySTD);
 SemaphoreHandle_t static historyMutex = xSemaphoreCreateMutex();
 SemaphoreHandle_t static probeLastTempMutex = xSemaphoreCreateMutex();
 SemaphoreHandle_t static probeNameMutex = xSemaphoreCreateMutex();
+SemaphoreHandle_t static thermistorReadMutex = xSemaphoreCreateMutex();
 
 
 // Setup our thermistor pins and the corresponding ads channels
@@ -76,6 +77,7 @@ struct pinDetails {
   int adsChannels[NUM_PROBES];
   char probeNames[NUM_PROBES][NAME_LENGTH];
   float lastTemps[NUM_PROBES];
+  bool connected[NUM_PROBES];
 };
 
 // NOTE: Code assumes that the first thermistor and the voltage pin are connected to the 
@@ -83,13 +85,15 @@ struct pinDetails {
 static struct pinDetails pinConfig = {
   {0,1,2,3}, // Set the ads channels, this also serves as a loose probe id
   {"probe_0","probe_1","probe_2","probe_3"}, // ... and their default names
-  {nanf(""),nanf(""),nanf(""),nanf("")}
+  {nanf(""),nanf(""),nanf(""),nanf("")},
+  {true,true,true,true}
 };
 
 // This is used to hold the temperature updates
 struct temperatureUpdate {
   float temperatures[NUM_PROBES];
   long updateTime;
+  bool connected[NUM_PROBES];
 };
 
 

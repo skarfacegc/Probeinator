@@ -37,12 +37,14 @@ void getDataTask(void* params){
 
       // If resistance is low, assume there's no probe
       // Set some values and the string to display on the lcd
-      if(!isConnected(pinConfig.adsChannels[probe])) {
+      if(resistance < 10000) {
         temp_f = 0;
         temperature_display = "--  "; // spaces here are to ensure we overwrite the F when the prev val was 111F
+        updateStruct.connected[probe] = false;
       }
       else{
         temperature_display = String(temp_f) + String("F");
+        updateStruct.connected[probe] = true;
       }
       
       // set the temp in the update struct and update the LCD
