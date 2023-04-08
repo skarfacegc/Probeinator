@@ -35,10 +35,10 @@ void getDataTask(void* params){
       float temp_f = kToF(temp_k);
       String temperature_display;
 
-      // If resistance is low, assume there's no probe
+      // If resistance is low, assume there's no probe and set the connected state
       // Set some values and the string to display on the lcd
       if(resistance < 10000) {
-        temp_f = 0;
+        temp_f = nanf("");
         temperature_display = "--  "; // spaces here are to ensure we overwrite the F when the prev val was 111F
         updateStruct.connected[probe] = false;
       }

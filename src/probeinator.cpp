@@ -99,6 +99,15 @@ void storeData(struct temperatureUpdate updateStruct) {
   if(lastUpdate + HISTORY_INTERVAL <= updateStruct.updateTime) {
     if(xSemaphoreTake(historyMutex, MUTEX_W_TIMEOUT / portTICK_PERIOD_MS) == pdTRUE) {
       for (int i = 0; i < NUM_PROBES; i++){
+        String temperature = "null";
+
+        // if the probe is connected update the temp, otherwise put null
+        if(updateStruct.connected[i]) {
+          temperature = String(updateStruct.temperatures[i]);
+        } else {
+          temperature = "null";
+        }
+
         temperatureHistories[i].push(updateStruct.temperatures[i]);
       }
       temperatureHistoryTimes.push(updateStruct.updateTime);
@@ -146,6 +155,14 @@ String getProbeDataJson(int probe) {
   String retStr = "[";
   if(xSemaphoreTake(historyMutex, MUTEX_R_TIMEOUT / portTICK_PERIOD_MS) == pdTRUE) {
     for (int i = 0; i < temperatureHistories[probe].size(); i++){
+      
+      String tempString = "null";
+       // tempF should be the string null if nan otherwise temp
+      if(isConnected(probe)) {
+        tempString = String(temperatureHistories[probe][i]);
+      }else{
+        tempString = "null";
+      }
 
       if(i > 0) {
         retStr += ",";
@@ -153,7 +170,7 @@ String getProbeDataJson(int probe) {
       retStr += "[";
       retStr += int64String((uint64_t) myTZ.toLocal(temperatureHistoryTimes[i]) * 1000ull);
       retStr += ",";
-      retStr += String(temperatureHistories[probe][i]);
+      retStr += tempString;
       retStr += "]";
     }
     xSemaphoreGive(historyMutex);
@@ -169,11 +186,6 @@ String getDataJson() {
   String retStr = "[";
   
   for (int probe = 0; probe < NUM_PROBES; probe++){
-    // Skip this one if the probe isn't connected
-    if(!isConnected(probe)){
-      continue;
-    }
-
     // if we're not the first probe, add a comma
     // to continue the list
     if(probe != 0) {
@@ -182,7 +194,8 @@ String getDataJson() {
     retStr += "{";
     retStr += "\"id\": \"" + String(pinConfig.adsChannels[probe]) + "\",";
     retStr += "\"name\": \"" + String((char *)(pinConfig.probeNames[probe])) + "\",";
-    retStr += "\"data\": " + getProbeDataJson(probe);
+    retStr += "\"data\": " + getProbeDataJson(probe) + ", ";
+    retStr += "\"connected\": " + String(isConnected(probe));
     retStr += "}";
   }
   retStr += "]";
@@ -196,10 +209,7 @@ String getLastTempsJson() {
   String retString = "[";
   if(xSemaphoreTake(probeLastTempMutex, MUTEX_W_TIMEOUT / portTICK_PERIOD_MS) == pdTRUE) {
     for(int probe=0; probe < NUM_PROBES;probe++){
-      // Skip this one if the probe isn't connected
-      if(!isConnected(probe)){
-        continue;
-      }
+      String tempString = "null";
 
       // if we're not the first probe, add a comma
       // to continue the list
@@ -207,9 +217,15 @@ String getLastTempsJson() {
         retString += ", ";
       }
 
+      // tempF should be the string null if nan otherwise temp
+      if(isConnected(probe)) {
+        tempString = String(pinConfig.lastTemps[probe]);
+      }
+
       retString += "{\"id\": \"" + String(pinConfig.adsChannels[probe]) + "\", ";
       retString += "\"name\": \"" + String(pinConfig.probeNames[probe]) + "\", ";
-      retString += "\"last_temp\": " + String(pinConfig.lastTemps[probe]) + "}"; 
+      retString += "\"last_temp\": " + tempString + ",";
+      retString += "\"connected\": " + String(pinConfig.connected[probe])+ "}"; ;
     }    
   } else {
   Serial.println("!!! Couldn't get R mutex to read temps");

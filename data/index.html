@@ -124,7 +124,7 @@
 
     <script type="text/javascript">
         const tempUpdateInterval = 5000; // 5 seconds
-        const graphUpdateInterval = 120000; // two minutes
+        const graphUpdateInterval = 30000; // 30 seconds
         window.onload = function() {
             updateTemps();
         };
@@ -205,8 +205,12 @@
                 resultJson.forEach(probe => {
                     const tempId = "temp_" + probe.id;
                     const nameId = "name_" + probe.id;
-                    document.getElementById(tempId).textContent = probe.last_temp;
                     document.getElementById(nameId).textContent = probe.name;
+                    if(!probe.connected){
+                        document.getElementById(tempId).textContent = "---"    
+                    } else {
+                        document.getElementById(tempId).textContent = probe.last_temp;
+                    }
                 });
             } 
             catch {
@@ -215,11 +219,6 @@
             finally{
                 setTimeout(updateTemps, tempUpdateInterval);
             }            
-        }
-
-        function nameMatch(probeData){
-            console.log(JSON.stringify(probeData));
-            return true;
         }
 
         // Update data every refresh interval
@@ -231,25 +230,20 @@
                 console.log(chart.series.length);
 
 
-                
-                // delete graphs when a probe is removed
-                // Loop through the defined charts and make sure we have a matching value from 
-                // the resultJson structure
-                for(i=0; i<chart.series.length; i++){
-                    // if we didn't find 
-                    if(resultJson.find(nameMatch)){
-                        console.log("Found " + chart.series[i].name + " in tempData");
-                    } else {
-                        console.log("Couldn't find " + name + " in tempData");
-                    }
-                }
-
                 // loop through the probe data, add new series 
                 // if needed and update the data arrays
                 resultJson.forEach(series => {
                     if(!chart.get(series.id)) {
                         chart.addSeries(series);
                     }
+
+                    // hide the graph if the probe isn't connected
+                    if(!series.connected) {
+                        chart.get(series.id).hide();
+                    } else {
+                        chart.get(series.id).show();
+                    }
+
                     chart.get(series.id).setData(series.data);
                     if(chart.get(series.id).name != series.name) {
                         chart.get(series.id).name = series.name;
