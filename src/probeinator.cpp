@@ -95,7 +95,7 @@ void printData(int channel_num, double divider_voltage, double temp_k, double re
 //
 
 // Update temp history.  Only save data every HISTORY_INTERVAL seconds
-void storeData(struct temperatureUpdate updateStruct) {
+void updateTempHistory(struct temperatureUpdate updateStruct) {
   if(lastUpdate + HISTORY_INTERVAL <= updateStruct.updateTime) {
     if(xSemaphoreTake(historyMutex, MUTEX_W_TIMEOUT / portTICK_PERIOD_MS) == pdTRUE) {
       for (int i = 0; i < NUM_PROBES; i++){
@@ -120,7 +120,7 @@ void storeData(struct temperatureUpdate updateStruct) {
 }
 
 // store the latest temperature in the pin details struct
-void saveLastTemps(struct temperatureUpdate updateStruct){
+void updateLastTemps(struct temperatureUpdate updateStruct){
   if(xSemaphoreTake(probeLastTempMutex, MUTEX_W_TIMEOUT / portTICK_PERIOD_MS) == pdTRUE) {
     for (int i = 0; i < NUM_PROBES; i++){
         pinConfig.lastTemps[i] = updateStruct.temperatures[i];
@@ -250,7 +250,8 @@ String lcdLineClear(int length) {
 
 // Save the config passed in probeConfig to preferences
 // creates a namespace for each probe as needed
-void savePrefs(int probe, struct probeConfig config_data){
+void saveProbePrefs(int probe, struct probePrefs config_data){
+  // Save the probe name
   if(preferences.begin(getPrefNamespace(probe).c_str(), false)){
     preferences.putBytes("probeName", config_data.probeName, NAME_LENGTH);
     preferences.end();
@@ -260,8 +261,9 @@ void savePrefs(int probe, struct probeConfig config_data){
 }
 
 // load the config for the specified probe
-probeConfig getPrefs(int probe){
-  struct probeConfig config_data = {};
+// This will ultimately be used to apply probe prefs to the global pinConfig structure
+probePrefs getProbePrefs(int probe){
+  struct probePrefs config_data = {};
   if(preferences.begin(getPrefNamespace(probe).c_str(), true)) {
     if(preferences.isKey("probeName")){
       preferences.getBytes("probeName", &config_data.probeName, NAME_LENGTH);
@@ -289,9 +291,11 @@ void printConfig() {
 
 // Update the main pin configuration with user prefs
 void applyPrefs() {
+
+  // Apply the probe prefs
   for (int probe = 0; probe < NUM_PROBES; probe++){
-    struct probeConfig config_data = {};
-    config_data = getPrefs(probe);
+    struct probePrefs config_data = {};
+    config_data = getProbePrefs(probe);
 
     // Set the probe name
     if(strlen(config_data.probeName) > 0 && strlen(config_data.probeName) <= NAME_LENGTH) {

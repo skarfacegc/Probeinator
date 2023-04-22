@@ -97,8 +97,8 @@ struct temperatureUpdate {
 };
 
 
-// probe config update struct
-struct probeConfig {
+// Used to deal with saving and loading the storable probe prefs
+struct probePrefs {
   char probeName[NAME_LENGTH];
 };
 
@@ -121,9 +121,10 @@ double cToF(double);
 double kToF(double);
 void dumpHistory();
 void printData(int, double, double, double);
-void storeData(struct temperatureUpdate);
-void saveLastTemps(struct temperatureUpdate);
-void savePrefs(int, struct probeConfig);
+void updateTempHistory(struct temperatureUpdate);
+void updateLastTemps(struct temperatureUpdate);
+void saveProbePrefs(int, struct probePrefs);
+void saveSystemPrefs(struct systemConfigStruct);
 void printConfig();
 void clearPrefs();
 String getPrefNamespace(int);
@@ -134,7 +135,8 @@ String getTimeString(time_t);
 String zeroPad(int);
 String lcdLineClear(int);
 String getProbeName(int probe);
-probeConfig getPrefs(int);
+probePrefs getProbePrefs(int);
+systemConfigStruct getSystemPrefs();
 
 //
 // Web server handling prototypes

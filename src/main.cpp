@@ -56,8 +56,8 @@ void getDataTask(void* params){
       //printData(pinConfig.adsChannels[probe], thermistorVoltage, temp_k, resistance);
     }
     // push the current temperature into the storage FIFO
-    storeData(updateStruct);
-    saveLastTemps(updateStruct);
+    updateTempHistory(updateStruct);
+    updateLastTemps(updateStruct);
     vTaskDelay(MAIN_LOOP_INTERVAL / portTICK_PERIOD_MS);
   }
 }
