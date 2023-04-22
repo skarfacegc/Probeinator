@@ -50,7 +50,7 @@ String savePrefData(AsyncWebServerRequest *request){
     int probe = -1;
     String errors = "";
     int params = request->params();
-    struct probeConfig config_data = {};
+    struct probePrefs config_data = {};
 
    // find our params
     for(int i=0;i<params;i++){
@@ -71,7 +71,7 @@ String savePrefData(AsyncWebServerRequest *request){
 
     // We found a probe and we don't have any errors
     if(probe > -1 && errors.length() == 0) {
-      savePrefs(probe, config_data);
+      saveProbePrefs(probe, config_data);
     } else {
       Serial.println("Bad probe id or errors when saving\n\tErrors: " + errors + String(errors.length()));
     }
