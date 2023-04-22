@@ -154,7 +154,7 @@ void dumpHistory() {
 String getProbeDataJson(int probe) {
   String retStr = "[";
   if(xSemaphoreTake(historyMutex, MUTEX_R_TIMEOUT / portTICK_PERIOD_MS) == pdTRUE) {
-    for (int i = 0; i < temperatureHistories[probe].size(); i++){
+    for (int i = 0; i < temperatureHistories[probe].size()-1; i++){
       
       String tempString = "null";
        // tempF should be the string null if nan otherwise temp

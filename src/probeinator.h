@@ -25,8 +25,8 @@
 
 
 #define MAIN_LOOP_INTERVAL 1000 // this is the main loop timer, doesn't control much.
-#define HISTORY_INTERVAL 120// how often to update history samples (SECONDS!)
-#define HISTORY_SIZE 720 
+#define HISTORY_INTERVAL 60// how often to update history samples (SECONDS!)
+#define HISTORY_SIZE 360 // 6 hours of minute data 
 #define MUTEX_W_TIMEOUT 200
 #define MUTEX_R_TIMEOUT 400
 #define READING_COUNT 5 // number of readings to average together per poll
