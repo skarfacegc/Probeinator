@@ -80,12 +80,13 @@
         .probeForm{
             padding-top: 20px;
             padding-bottom: 20px;
-            font-size:x-large
+            font-size:large
         }
         .inputField {
             border: 1px solid black;
             border-radius: 4px;
-            font-size:x-large;
+            margin: 2px;
+            font-size:large;
             font-family:'Courier New', Courier, monospace;
         }
         .submitButton {
@@ -95,9 +96,10 @@
             vertical-align: middle;
             background: none;
             box-shadow: none;
+            margin-top: 2px;
             border: 1px solid darkgray;
             border-radius:5px;
-            margin-left: 15px;
+            margin-left: 10px;
             margin-bottom: 7px;
         }
     </style>
@@ -111,7 +113,9 @@
         <form class="probeForm" action="/updateConfig" method="post">
             <b>Probe 0</b> <input class="submitButton" type="submit" value="Save">
             <br>
-            Name <input type="text" class="inputField" id="nameField" name="probeName">
+            <label>Target Temp</label><input type="text" class="inputField" id="targetTempField" name="targetTemp" size="4">
+            <br>
+            <label>Name</label><input type="text" class="inputField" id="nameField" maxlength="9" name="probeName">
             <input type="hidden" name="probe" value="0">
         </form>
 
@@ -122,7 +126,15 @@
             <br>
             <input type="hidden" name="probe" value="1">
         </form>
-        
+
+        <form class="probeForm" action="/updateConfig" method="post">
+            WebHook URL <input type="text" class="inputField" name="webHook" size="40">
+            <input class="submigtButton" type="submit" value="Save">
+            <br>
+            MQTT Server <input type="text" class="inputField" name="MQTT" size="40">
+            <input type="hidden" name="systemPrefs" value="1">
+        </form>
+
         <div class="clearPrefs">
             <a href="/clearPrefs" >Reset to Default Settings</a>
         </div>

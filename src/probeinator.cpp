@@ -279,6 +279,35 @@ String getProbeName(int probe) {
   return String(pinConfig.probeNames[probe]);
 }
 
+// Save the global prefs (mqtt &|| webhook url)
+void saveSystemPrefs(struct systemConfigStruct config_data){
+   if(preferences.begin(SYSTEM_PREF_NAME, false)){
+    preferences.putBytes("MQTT", config_data.MQTT, URL_LENGTH);
+    preferences.putBytes("webHook", config_data.webHookURL, URL_LENGTH);
+    preferences.end();
+  } else {
+    Serial.println("!!! Couldn't open write system prefs");
+  }
+}
+
+// Get the system config
+systemConfigStruct getSystemPrefs(){
+  struct systemConfigStruct config_data = {};
+  if(preferences.begin(SYSTEM_PREF_NAME, true)) {
+    if(preferences.isKey("MQTT")){
+      preferences.getBytes("MQTT", &config_data.MQTT, URL_LENGTH);
+    }
+    if(preferences.isKey("webHook")){
+      preferences.getBytes("webHook", &config_data.webHookURL, URL_LENGTH);
+    }
+    preferences.end();
+  } else {
+    Serial.println("!!! Failed to get system config");
+  }
+  return config_data;
+}
+
+
 // print the stored config data
 void printConfig() {
   for (int probe = 0; probe < NUM_PROBES; probe++) {
@@ -287,6 +316,8 @@ void printConfig() {
     Serial.println("\tADS Channel: " + String(pinConfig.adsChannels[probe]));
     Serial.println("\tLast Temp: " + String(pinConfig.lastTemps[probe]));
   }
+  Serial.println("MQTT:\t" + String(systemConfig.MQTT));
+  Serial.println("webHookURL:\t" + String(systemConfig.webHookURL));
 }
 
 // Update the main pin configuration with user prefs
@@ -305,6 +336,21 @@ void applyPrefs() {
       String tmpName = "probe_" + String(probe);
       strncpy(pinConfig.probeNames[probe], tmpName.c_str(), NAME_LENGTH);
     }
+  }
+
+  // Apply the system prefs
+  struct systemConfigStruct system_config = {};
+  system_config = getSystemPrefs();
+  if(strlen(system_config.MQTT) > 0 && strlen(system_config.MQTT) <= URL_LENGTH){
+    strncpy(systemConfig.MQTT, (char *)system_config.MQTT, URL_LENGTH);
+  } else {
+    strncpy(systemConfig.MQTT, "", URL_LENGTH);
+  }
+
+  if(strlen(system_config.webHookURL) > 0 && strlen(system_config.webHookURL) <= URL_LENGTH){
+    strncpy(systemConfig.webHookURL, (char *)system_config.webHookURL, URL_LENGTH);
+  } else {
+    strncpy(systemConfig.webHookURL, "", URL_LENGTH);
   }
 }
 

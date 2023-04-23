@@ -35,19 +35,23 @@
 #define MAX_PROBE_NAME 10
 #define SPLASH_SCREEN_DELAY 6 * 1000
 #define NAME_LENGTH 10
+#define URL_LENGTH 40 // length of MQTT and WebHook URLs/Addresses
 
 
 // get some constants out of the way
 static const char* ssid = WIFI_NAME; // SSID
 static const char* password = WIFI_PW; // Password
 
+// These are used for figuring out the temp from the thermistor
 static const double INPUT_VOLTAGE = 3.30;
 static const double BALANCE_RESISTOR = 22000.0;
 static const double BETA = 3500.0;
 static const double ROOM_TEMP = 298.15;
 static const double RESISTOR_ROOM_TEMP = 200000.0;
 
+// These are used as names for the esp32 preferences API
 static const String PREF_BASE_NAME = "probePref";
+static const char* SYSTEM_PREF_NAME = "globalPrefs";
 
 static double lastUpdate = 0;  // tracks when the last update was made to the storage buffer
 
@@ -88,6 +92,17 @@ static struct pinDetails pinConfig = {
   {nanf(""),nanf(""),nanf(""),nanf("")},
   {true,true,true,true}
 };
+
+
+// This struct holds the global config options
+struct systemConfigStruct {
+  char webHookURL[URL_LENGTH];
+  char MQTT[URL_LENGTH];
+};
+
+// Initialize the system config
+static struct systemConfigStruct systemConfig = {"",""};
+
 
 // This is used to hold the temperature updates
 struct temperatureUpdate {

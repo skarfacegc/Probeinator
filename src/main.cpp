@@ -110,6 +110,8 @@ void setup()
 
   // print the start config
   applyPrefs();
+
+  printConfig();
   
 
   // Show the splash screen
